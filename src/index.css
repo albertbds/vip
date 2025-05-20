@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background-start: #0F172A;
+  --background-end: #1E293B;
+}
+
+body {
+  background: linear-gradient(135deg, var(--background-start) 0%, var(--background-end) 100%);
+  min-height: 100vh;
+  color: #fff;
+}
+
+.glass-effect {
+  @apply bg-white/5 backdrop-blur-md border border-white/10 rounded-lg;
+}
+
+.glass-card {
+  @apply glass-effect transition-all duration-300 hover:bg-white/10 hover:scale-[1.02] hover:shadow-lg;
+}
+
+.nav-link {
+  @apply transition-all duration-300 hover:bg-white/10 rounded-lg;
+}
+
+.gradient-text {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent;
+}
+
+.floating-element {
+  @apply animate-float;
+}
+
+.glow {
+  @apply relative;
+}
+
+.glow::before {
+  content: '';
+  @apply absolute inset-0 -z-10 bg-gradient-to-r from-primary/20 via-secondary/20 to-accent/20 blur-xl opacity-75 transition-opacity duration-500;
+}
+
+.glow:hover::before {
+  @apply opacity-100;
+}
+
+/* Modern Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-background-dark;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary/50 rounded-full hover:bg-primary/70 transition-colors;
+}
+
+/* Smooth transitions */
+* {
+  @apply transition-colors duration-200;
+}
+
+/* Card hover effects */
+.hover-card {
+  @apply transform transition-all duration-300 hover:-translate-y-1 hover:shadow-xl;
+}
+
+/* Button styles */
+.btn-primary {
+  @apply px-6 py-3 bg-gradient-to-r from-primary to-secondary text-white rounded-lg 
+         transform transition-all duration-300 hover:scale-105 hover:shadow-lg 
+         focus:outline-none focus:ring-2 focus:ring-primary/50 active:scale-95;
+}
+
+.btn-secondary {
+  @apply px-6 py-3 bg-white/10 backdrop-blur-sm rounded-lg 
+         transform transition-all duration-300 hover:bg-white/20 hover:scale-105
+         focus:outline-none focus:ring-2 focus:ring-white/30 active:scale-95;
+}
+
+/* Input styles */
+.input-modern {
+  @apply bg-white/5 border border-white/10 rounded-lg px-4 py-2
+         focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50;
+}
+
+/* Animation utilities */
+.animate-pulse-slow {
+  animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Modern card grid */
+.modern-grid {
+  @apply grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+}
