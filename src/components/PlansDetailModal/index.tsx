@@ -165,11 +165,10 @@ Após 3 meses, R$ ${prices[400].after}`;
       .join('\n\n');
 
     let message = `Temos cobertura para seu endereço ✅
-_Internet_ *100% Fibra*.
-_Fidelidade de 12 meses_
-_Sua instalação 100% gratuita_
-_Roteador fornecido em comodato_
-
+Internet_ *100% Fibra*.
+Fidelidade de 12 meses_
+Sua instalação 100% gratuita_
+Roteador fornecido em comodato_
 - = - = - = *✯ Internet ✯* - = - = - =
 
 ${streamingPlans || basePlans}`;
