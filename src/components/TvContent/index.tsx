@@ -184,9 +184,9 @@ export function TvContent() {
                 />
                 <input
                   type="text"
-                  value="Comprovante"
+                  value="marca empresa"
                   disabled
-                  placeholder="Comprovante"
+                  placeholder="marca empresa"
                   className="bg-white/5 border border-white/10 rounded-lg p-3 text-gray-300"
                 />
               </div>
