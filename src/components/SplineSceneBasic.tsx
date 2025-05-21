@@ -19,7 +19,7 @@ export function SplineSceneBasic() {
             </h1>
             
             <p className="text-lg text-gray-300 mb-12 max-w-2xl">
-              01/04 até 30/04
+              01/05 até 31/05
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
