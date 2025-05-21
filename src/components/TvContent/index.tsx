@@ -45,6 +45,8 @@ export function TvContent() {
     
     const currentPlan = selectedTerritory.plans.find(p => 
       activeTab === 'basic' ? p.name === "TV Básico" :
+      activeTab === 'family' ? p.name === "TV Família" :
+      activeTab === 'cinema' ? p.name === "TV Cinema" :
       activeTab === 'paramount' ? p.name === "TV + Paramount" :
       p.name === "TV + Paramount + MAX"
     );
@@ -125,6 +127,8 @@ export function TvContent() {
             >
               {[
                 { id: 'basic', label: 'TV Básico', icon: Tv2 },
+                { id: 'family', label: 'TV Família', icon: Tv2 },
+                { id: 'cinema', label: 'TV Cinema', icon: Film },
                 { id: 'paramount', label: 'TV + Paramount', icon: Film },
                 { id: 'max', label: 'TV + MAX + Paramount', icon: Trophy }
               ].map(tab => (
