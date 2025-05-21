@@ -6,12 +6,11 @@ import { SplineSceneBasic } from './components/SplineSceneBasic';
 import { AppList } from './components/AppList';
 import { StreamingContent } from './components/StreamingContent';
 import { TvContent } from './components/TvContent';
-import { WhatsAppMessenger } from './components/WhatsAppMessenger';
 import { Condominiums } from './components/Condominiums';
 import { PlansDetailModal } from './components/PlansDetailModal';
 import { CpfConsult } from './components/CpfConsult';
 import { FAQ } from './components/FAQ';
-import { Home, Building2, Search, Utensils as Extension, Tv2, Smartphone, UserCheck, HelpCircle } from 'lucide-react';
+import { Home, Building2, Search, Tv2, Smartphone, HelpCircle } from 'lucide-react';
 import { useSearch } from './contexts/SearchContext';
 
 function App() {
@@ -65,12 +64,8 @@ function App() {
         return <TvContent />;
       case 'streaming':
         return <StreamingContent />;
-      case 'whatsapp':
-        return <WhatsAppMessenger />;
       case 'condominiums':
         return <Condominiums />;
-      case 'cpf':
-        return <CpfConsult />;
       case 'faq':
         return (
           <div className="w-full max-w-4xl mx-auto">
@@ -140,7 +135,6 @@ function App() {
               { id: 'tv', label: 'Planos TV', icon: Tv2 },
               { id: 'streaming', label: 'Apps', icon: Smartphone },
               { id: 'condominiums', label: 'Condomínios', icon: Building2 },
-              { id: 'whatsapp', label: 'Extensão', icon: Extension },
               { id: 'faq', label: 'Dúvidas', icon: HelpCircle }
             ].map(item => (
               <li key={item.id}>
