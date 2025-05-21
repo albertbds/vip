@@ -275,7 +275,7 @@ ${streamingPlans || basePlans}`;
                     type="text"
                     value={territory.cities[0]}
                     disabled
-                    placeholder="Cidade"
+                    placeholder="Ciss"
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-gray-300"
                   />
                 </div>
