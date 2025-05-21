@@ -169,7 +169,7 @@ export function TvContent() {
                   type="text"
                   value={selectedTerritory?.cities[0] || ''}
                   disabled
-                  placeholder="Cidade"
+                  placeholder="Ciss"
                   className="bg-white/5 border border-white/10 rounded-lg p-3 text-gray-300"
                 />
               </div>
