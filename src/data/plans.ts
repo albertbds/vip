@@ -82,7 +82,7 @@ const t15Plans: PlanGroup = {
 // TV Plans
 export const tvBasicPlan = {
   name: "TV Básico",
-  channels: "35 Canais ao vivo"
+  channels: "35 Canais ao vivo",
   description: "Conecte-se com mais velocidade, com Internet 100% Fibra.",
   plans: [
     { speed: "920MB", price: "189,99", priceAfter: "209,99" },
