@@ -12,15 +12,18 @@ import { CpfConsult } from './components/CpfConsult';
 import { FAQ } from './components/FAQ';
 import { Home, Building2, Search, Tv2, Smartphone, HelpCircle } from 'lucide-react';
 import { useSearch } from './contexts/SearchContext';
+import { isTVAvailable } from './data/tvPlans';
 
 function App() {
   const [selectedTerritory, setSelectedTerritory] = useState<Territory | null>(null);
   const [currentPage, setCurrentPage] = useState('home');
   const [showPlansModal, setShowPlansModal] = useState(false);
   const { getTopSearchedCities, incrementSearchCount } = useSearch();
+  const [selectedCity, setSelectedCity] = useState<string>('');
 
   const handleCitySelect = (city: string) => {
     incrementSearchCount(city);
+    setSelectedCity(city);
     const territory = findTerritoryByCity(city);
     if (territory) {
       setSelectedTerritory(territory);
@@ -132,7 +135,9 @@ function App() {
             {[
               { id: 'home', label: 'Início', icon: Home },
               { id: 'plans', label: 'Planos', icon: Search },
-              { id: 'tv', label: 'Planos TV', icon: Tv2 },
+              ...(selectedCity && isTVAvailable(selectedCity) ? [
+                { id: 'tv', label: 'GIGA+ TV', icon: Tv2 }
+              ] : []),
               { id: 'streaming', label: 'Apps', icon: Smartphone },
               { id: 'condominiums', label: 'Condomínios', icon: Building2 },
               { id: 'faq', label: 'Dúvidas', icon: HelpCircle }
