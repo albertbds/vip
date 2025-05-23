@@ -53,7 +53,7 @@ export const tvPlans = [
   },
   {
     name: "TV Família",
-    channels: "85 Canais ao vivo",
+    channels: "48 Canais ao vivo",
     description: "Mais canais e conteúdo para toda a família.",
     plans: [
       { speed: "920MB", price: "209,99", priceAfter: "229,99" },
@@ -64,7 +64,7 @@ export const tvPlans = [
   },
   {
     name: "TV Cinema",
-    channels: "95 Canais ao vivo",
+    channels: "48 Canais ao vivo",
     description: "A melhor experiência em filmes e séries.",
     plans: [
       { speed: "920MB", price: "229,99", priceAfter: "249,99" },
