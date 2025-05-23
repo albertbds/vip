@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { X, Tag, Store, Play, Phone, Tv2, Copy, Check, AlertCircle, ChevronLeft, ChevronRight, Film, Trophy } from 'lucide-react';
+import { X, Tag, Store, Play, Phone, Tv2, Copy, Check, AlertCircle, ChevronLeft, ChevronRight, Film } from 'lucide-react';
 import { Territory } from '../../types';
 import { motion, AnimatePresence } from 'framer-motion';
+import { isTVAvailable, isPhoneAvailable, tvPlans } from '../../data/tvPlans';
+import { getBrandForCity } from '../../data/cityBrands';
 
 interface PlansDetailModalProps {
   isOpen: boolean;
@@ -9,42 +11,23 @@ interface PlansDetailModalProps {
   territory: Territory;
 }
 
-type TabType = 'cpf' | 'cnpj' | 'apps' | 'globoplay' | 'telecine' | 'max' | 'paramount';
-
-const citiesWithTVEnabled = new Set([
-  'Acaraú', 'Aquiraz', 'Beberibe', 'Camocim', 'Cascavel', 'Caucaia', 'Cruz', 'Eusébio',
-  'Fortaleza', 'Fortim', 'Frecheirinha', 'Graça', 'Granja', 'Ibiapina', 'Itaitinga',
-  'Itapipoca', 'Itarema', 'Jijoca De Jericoacoara', 'Limoeiro Do Norte', 'Maracanaú',
-  'Maranguape', 'Morada Nova', 'Mucambo', 'Pacajus', 'Pacatuba', 'Pacujá', 'Paracuru',
-  'Paraipaba', 'Pentecoste', 'Pindoretama', 'Quixadá', 'Russas', 'São Benedito',
-  'São Gonçalo Do Amarante', 'São Luís Do Curu', 'Sobral', 'Tabuleiro Do Norte',
-  'Trairi', 'Ubajara'
-]);
+type TabType = 'cpf' | 'cnpj' | 'apps' | 'tv-basic' | 'tv-family' | 'tv-cinema';
 
 export function PlansDetailModal({ isOpen, onClose, territory }: PlansDetailModalProps) {
   const [activeTab, setActiveTab] = useState<TabType>('cpf');
   const [copied, setCopied] = useState(false);
   const [showPhoneOptions, setShowPhoneOptions] = useState(false);
-  const [showTVOptions, setShowTVOptions] = useState(false);
   const [tabsScrollPosition, setTabsScrollPosition] = useState(0);
+  const [selectedCity, setSelectedCity] = useState(territory.cities[0]);
+  const cityBrand = getBrandForCity(selectedCity);
+  const hasTVService = isTVAvailable(selectedCity);
+  const hasPhoneService = isPhoneAvailable(selectedCity);
 
   const tabsRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const shouldEnableTV = territory.cities.some(city => citiesWithTVEnabled.has(city));
-    setShowTVOptions(shouldEnableTV);
-
-    // Prevent body scroll when modal is open
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-
-    return () => {
-      document.body.style.overflow = 'unset';
-    };
-  }, [territory, isOpen]);
+    setSelectedCity(territory.cities[0]);
+  }, [territory]);
 
   const handleScroll = (direction: 'left' | 'right') => {
     if (tabsRef.current) {
@@ -59,35 +42,6 @@ export function PlansDetailModal({ isOpen, onClose, territory }: PlansDetailModa
       setTabsScrollPosition(newPosition);
       tabsRef.current.scrollTo({ left: newPosition, behavior: 'smooth' });
     }
-  };
-
-  const handleCopy = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch (error) {
-      console.error('Failed to copy text:', error);
-    }
-  };
-
-  if (!isOpen) return null;
-
-  const getStreamingPrices = (basePrices: typeof territory.plans.regular, additionalPrice: number) => {
-    if (!basePrices || !Array.isArray(basePrices)) return '';
-    
-    return basePrices
-      .filter(plan => plan && typeof plan === 'object' && 'price' in plan && 'priceAfter' in plan)
-      .map(plan => {
-        const basePrice = parseFloat((plan.price || '0').replace(',', '.'));
-        const basePriceAfter = parseFloat((plan.priceAfter || '0').replace(',', '.'));
-        
-        const newPrice = (basePrice + additionalPrice).toFixed(2).replace('.', ',');
-        const newPriceAfter = (basePriceAfter + additionalPrice).toFixed(2).replace('.', ',');
-        
-        return `➕ ${plan.speed || ''} por R$ ${newPrice}/mês${plan.description ? ` • ${plan.description}` : ''}\nApós 3 meses, R$ ${newPriceAfter}`;
-      })
-      .join('\n\n');
   };
 
   const getPlansText = () => {
@@ -110,29 +64,46 @@ Inclua um aplicativo ao seu pacote:
 * Assista a jogos da Libertadores e Sul-Americana!`;
     }
 
-    if (activeTab === 'cnpj') {
-      const prices = territory.id.startsWith('T1') || 
-                    territory.id.startsWith('T2') || 
-                    territory.id.startsWith('T3') || 
-                    territory.id.startsWith('T4') || 
-                    territory.id.startsWith('T5') || 
-                    territory.id.startsWith('T6') || 
-                    territory.id.startsWith('T7') || 
-                    territory.id.startsWith('T8') || 
-                    territory.id.startsWith('T9')
-        ? {
-            920: { price: '139,99', after: '159,99' },
-            800: { price: '119,99', after: '139,99' },
-            600: { price: '99,99', after: '119,99' },
-            400: { price: '79,99', after: '99,99' }
-          }
-        : {
-            920: { price: '139,99', after: '159,99' },
-            800: { price: '109,99', after: '129,99' },
-            600: { price: '89,99', after: '109,99' },
-            400: { price: '69,99', after: '89,99' }
-          };
+    if (activeTab.startsWith('tv-')) {
+      const planType = activeTab.split('-')[1];
+      const tvPlan = tvPlans.find(p => p.name.toLowerCase().includes(planType));
+      if (!tvPlan) return '';
 
+      return `➕ ${tvPlan.channels}\n\n` +
+             `Melhores Ofertas:\n` +
+             tvPlan.plans.map(speed => 
+               `➕${speed.speed} por R$ ${speed.price}/mês\n` +
+               `por 3 meses, após ${speed.priceAfter}`
+             ).join('\n\n') +
+             `\n\n(${tvPlan.description}) 📽️\n\n` +
+             `Instalação Gratuita\n` +
+             `📝 Fidelidade de 12 meses\n` +
+             `⚙️ Roteador fornecido em comodato`;
+    }
+
+    const prices = territory.id.startsWith('T1') || 
+                  territory.id.startsWith('T2') || 
+                  territory.id.startsWith('T3') || 
+                  territory.id.startsWith('T4') || 
+                  territory.id.startsWith('T5') || 
+                  territory.id.startsWith('T6') || 
+                  territory.id.startsWith('T7') || 
+                  territory.id.startsWith('T8') || 
+                  territory.id.startsWith('T9')
+      ? {
+          920: { price: '139,99', after: '159,99' },
+          800: { price: '119,99', after: '139,99' },
+          600: { price: '99,99', after: '119,99' },
+          400: { price: '79,99', after: '99,99' }
+        }
+      : {
+          920: { price: '139,99', after: '159,99' },
+          800: { price: '109,99', after: '129,99' },
+          600: { price: '89,99', after: '109,99' },
+          400: { price: '69,99', after: '89,99' }
+        };
+
+    if (activeTab === 'cnpj') {
       return `Temos cobertura para seu endereço ✅
 _Internet_ *100% Fibra*.
 _Fidelidade de 12 meses_
@@ -152,15 +123,10 @@ Após 3 meses, R$ ${prices[600].after}
 Após 3 meses, R$ ${prices[400].after}`;
     }
 
-    const streamingPlans = getStreamingPrices(territory.plans.regular, activeTab === 'globoplay' ? 22.90 :
-      activeTab === 'telecine' ? 29.90 :
-      activeTab === 'max' ? 30.00 :
-      activeTab === 'paramount' ? 10.00 : 0);
-
     const basePlans = territory.plans.regular
-      .filter(plan => plan && typeof plan === 'object' && 'price' in plan && 'priceAfter' in plan)
       .map(plan => 
-        `➕ ${plan.speed || ''} por R$ ${plan.price || '0'}/mês${plan.description ? ` • ${plan.description}` : ''}\nApós 3 meses, R$ ${plan.priceAfter || '0'}`
+        `➕ ${plan.speed} por R$ ${plan.price}/mês${plan.description ? ` • ${plan.description}` : ''}\n` +
+        `Após 3 meses, R$ ${plan.priceAfter}`
       )
       .join('\n\n');
 
@@ -169,17 +135,28 @@ Internet_ *100% Fibra*.
 Fidelidade de 12 meses_
 Sua instalação 100% gratuita_
 Roteador fornecido em comodato_
+
 - = - = - = *✯ Internet ✯* - = - = - =
 
-${streamingPlans || basePlans}`;
+${basePlans}`;
 
-    // Add TV offer text only for cities with TV service
-    if (territory.cities.some(city => citiesWithTVEnabled.has(city))) {
-      message += `\n\n🎉 Oferta especial GIGA+FIBRA para você! Adquira Internet 100% fibra óptica e aproveite a TV ao vivo e streaming. Além de uma conexão ultra-rápida, você terá acesso à Giga+TV, com milhares de filmes, séries e canais ao vivo. E o melhor: tudo isso com um preço exclusivo! Gostaria de saber mais detalhes? Confira se temos cobertura na sua cidade`;
+    if (hasTVService || hasPhoneService) {
+      message += '\n\n🎉 Serviços disponíveis:';
+      if (hasTVService) message += '\n• GIGA+ TV disponível';
+      if (hasPhoneService) message += '\n• Telefonia disponível';
     }
 
     return message;
   };
+
+  const handleCopy = async () => {
+    const text = getPlansText();
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  if (!isOpen) return null;
 
   return (
     <AnimatePresence>
@@ -227,28 +204,81 @@ ${streamingPlans || basePlans}`;
                 className="flex overflow-x-auto scrollbar-hide px-16 py-4 gap-2"
                 style={{ scrollBehavior: 'smooth' }}
               >
-                {[
-                  { id: 'cpf', label: 'CPF', icon: Tag },
-                  { id: 'cnpj', label: 'CNPJ', icon: Store },
-                  { id: 'apps', label: 'APPS', icon: Play },
-                  { id: 'globoplay', label: 'Globoplay', icon: Tv2 },
-                  { id: 'telecine', label: 'Telecine', icon: Film },
-                  { id: 'max', label: 'MAX', icon: Play },
-                  { id: 'paramount', label: 'Paramount+', icon: Trophy },
-                ].map(tab => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setActiveTab(tab.id as TabType)}
-                    className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all whitespace-nowrap ${
-                      activeTab === tab.id
-                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                        : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
-                    }`}
-                  >
-                    <tab.icon size={18} />
-                    {tab.label}
-                  </button>
-                ))}
+                <button
+                  onClick={() => setActiveTab('cpf')}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all whitespace-nowrap ${
+                    activeTab === 'cpf'
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                      : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <Tag size={18} />
+                  CPF
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('cnpj')}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all whitespace-nowrap ${
+                    activeTab === 'cnpj'
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                      : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <Store size={18} />
+                  CNPJ
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('apps')}
+                  className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all whitespace-nowrap ${
+                    activeTab === 'apps'
+                      ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
+                      : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                  }`}
+                >
+                  <Play size={18} />
+                  APPS
+                </button>
+
+                {hasTVService && (
+                  <>
+                    <button
+                      onClick={() => setActiveTab('tv-basic')}
+                      className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all whitespace-nowrap ${
+                        activeTab === 'tv-basic'
+                          ? 'bg-orange-600 text-white shadow-lg shadow-orange-500/20'
+                          : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <Tv2 size={18} />
+                      TV Básico
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab('tv-family')}
+                      className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all whitespace-nowrap ${
+                        activeTab === 'tv-family'
+                          ? 'bg-orange-600 text-white shadow-lg shadow-orange-500/20'
+                          : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <Tv2 size={18} />
+                      TV Família
+                    </button>
+
+                    <button
+                      onClick={() => setActiveTab('tv-cinema')}
+                      className={`flex items-center gap-2 px-6 py-3 rounded-lg transition-all whitespace-nowrap ${
+                        activeTab === 'tv-cinema'
+                          ? 'bg-orange-600 text-white shadow-lg shadow-orange-500/20'
+                          : 'bg-white/5 text-gray-400 hover:bg-white/10 hover:text-white'
+                      }`}
+                    >
+                      <Film size={18} />
+                      TV Cinema
+                    </button>
+                  </>
+                )}
               </div>
 
               <button 
@@ -273,9 +303,9 @@ ${streamingPlans || basePlans}`;
                   />
                   <input
                     type="text"
-                    value={territory.cities[0]}
+                    value={selectedCity}
                     disabled
-                    placeholder="Ciss"
+                    placeholder="Cidade"
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-gray-300"
                   />
                 </div>
@@ -290,16 +320,16 @@ ${streamingPlans || basePlans}`;
                   />
                   <input
                     type="text"
-                    value="marca empresa"
+                    value={cityBrand}
                     disabled
-                    placeholder="marca empresa"
+                    placeholder="Marca"
                     className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-gray-300"
                   />
                 </div>
 
                 <div className="space-y-3">
                   <div className={`flex items-center justify-between p-4 rounded-lg ${
-                    showPhoneOptions ? 'bg-green-500/20 border border-green-500/30' : 'bg-white/5'
+                    hasPhoneService ? 'bg-green-500/20 border border-green-500/30' : 'bg-white/5'
                   }`}>
                     <div className="flex items-center gap-2 text-gray-300">
                       <Phone size={18} />
@@ -308,37 +338,41 @@ ${streamingPlans || basePlans}`;
                     <button
                       onClick={() => setShowPhoneOptions(!showPhoneOptions)}
                       className={`w-12 h-6 rounded-full transition-all relative ${
-                        showPhoneOptions ? 'bg-green-500' : 'bg-white/10'
+                        hasPhoneService ? 'bg-green-500' : 'bg-white/10'
                       }`}
                     >
                       <div
                         className={`absolute w-5 h-5 rounded-full bg-white top-0.5 transition-all ${
-                          showPhoneOptions ? 'left-7' : 'left-0.5'
+                          hasPhoneService ? 'left-7' : 'left-0.5'
                         }`}
                       />
                     </button>
                   </div>
 
                   <div className={`flex items-center justify-between p-4 rounded-lg ${
-                    showTVOptions ? 'bg-blue-600/20 border border-blue-500/30' : 'bg-white/5'
+                    hasTVService ? 'bg-orange-600/20 border border-orange-500/30' : 'bg-white/5'
                   }`}>
                     <div className="flex items-center gap-2 text-gray-300">
                       <Tv2 size={18} />
                       <span>GIGA+ TV</span>
                     </div>
-                    <button
-                      onClick={() => setShowTVOptions(!showTVOptions)}
-                      className={`w-12 h-6 rounded-full transition-all relative ${
-                        showTVOptions ? 'bg-blue-600' : 'bg-white/10'
-                      }`}
-                    >
+                    <div className={`w-12 h-6 rounded-full transition-all relative ${
+                      hasTVService ? 'bg-orange-600' : 'bg-white/10'
+                    }`}>
                       <div
                         className={`absolute w-5 h-5 rounded-full bg-white top-0.5 transition-all ${
-                          showTVOptions ? 'left-7' : 'left-0.5'
+                          hasTVService ? 'left-7' : 'left-0.5'
                         }`}
                       />
-                    </button>
+                    </div>
                   </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-[rgba(31,56,77,0.4)] to-[rgba(41,50,60,0.5)] p-4 rounded-lg">
+                  <p className="text-red-400 flex items-center gap-2">
+                    <AlertCircle size={16} />
+                    Não permitido uso de comprovantes terceiros
+                  </p>
                 </div>
               </div>
 
@@ -353,7 +387,7 @@ ${streamingPlans || basePlans}`;
                   {activeTab.toUpperCase()}
                 </div>
                 <button
-                  onClick={() => handleCopy(getPlansText())}
+                  onClick={handleCopy}
                   className="absolute bottom-4 right-4 p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors text-gray-400 hover:text-white"
                 >
                   {copied ? <Check size={20} /> : <Copy size={20} />}
