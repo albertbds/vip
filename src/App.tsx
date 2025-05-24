@@ -12,7 +12,7 @@ import { CpfConsult } from './components/CpfConsult';
 import { FAQ } from './components/FAQ';
 import { Home, Building2, Search, Tv2, Smartphone, HelpCircle } from 'lucide-react';
 import { useSearch } from './contexts/SearchContext';
-import { isTVAvailable } from './data/tvPlans';
+import { isTVAvailable, isPhoneAvailable } from './data/tvPlans';
 
 function App() {
   const [selectedTerritory, setSelectedTerritory] = useState<Territory | null>(null);
@@ -147,7 +147,9 @@ function App() {
                   onClick={() => setCurrentPage(item.id)}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-all flex items-center gap-2 ${
                     currentPage === item.id
-                      ? 'bg-gradient-to-r from-primary to-secondary text-white'
+                      ? item.id === 'tv'
+                        ? 'bg-orange-600 text-white'
+                        : 'bg-gradient-to-r from-primary to-secondary text-white'
                       : 'text-gray-300 hover:bg-white/10'
                   }`}
                 >
