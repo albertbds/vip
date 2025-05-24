@@ -10,16 +10,18 @@ import { Condominiums } from './components/Condominiums';
 import { PlansDetailModal } from './components/PlansDetailModal';
 import { CpfConsult } from './components/CpfConsult';
 import { FAQ } from './components/FAQ';
-import { Home, Building2, Search, Tv2, Smartphone, HelpCircle } from 'lucide-react';
+import { Home, Building2, Search, Tv2, Smartphone, HelpCircle, Mail, Lock, UserPlus } from 'lucide-react';
 import { useSearch } from './contexts/SearchContext';
 import { isTVAvailable, isPhoneAvailable } from './data/tvPlans';
+import { LoginScreen } from './components/LoginScreen';
 
 function App() {
   const [selectedTerritory, setSelectedTerritory] = useState<Territory | null>(null);
-  const [currentPage, setCurrentPage] = useState('home');
+  const [currentPage, setCurrentPage] = useState('login');
   const [showPlansModal, setShowPlansModal] = useState(false);
   const { getTopSearchedCities, incrementSearchCount } = useSearch();
   const [selectedCity, setSelectedCity] = useState<string>('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const handleCitySelect = (city: string) => {
     incrementSearchCount(city);
@@ -30,6 +32,15 @@ function App() {
       setShowPlansModal(true);
     }
   };
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    setCurrentPage('home');
+  };
+
+  if (!isAuthenticated) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
 
   const topCities = getTopSearchedCities();
 
