@@ -47,7 +47,7 @@ const streamingPlans: StreamingPlan[] = [
     icon: Film
   },
   {
-    name: "Globoplay Padrão com Aw",
+    name: "Globoplay Padrão com Anúncios",
     price: "22,90",
     description: "Acesso ao catálogo básico com benefícios especiais",
     icon: Play
