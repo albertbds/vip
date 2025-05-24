@@ -11,9 +11,9 @@ interface StreamingPlan {
 
 const streamingPlans: StreamingPlan[] = [
   {
-    name: "Globoplay Padrão",
-    price: "32,90",
-    description: "Acesso ao catálogo completo de séries, filmes e novelas",
+    name: "REMOVIDO ",
+    price: "0,0",
+    description: "REMOVIDO",
     icon: Play
   },
   {
@@ -47,7 +47,7 @@ const streamingPlans: StreamingPlan[] = [
     icon: Film
   },
   {
-    name: "Globoplay Padrão com A",
+    name: "Globoplay Padrão com Aw",
     price: "22,90",
     description: "Acesso ao catálogo básico com benefícios especiais",
     icon: Play
