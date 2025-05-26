@@ -354,7 +354,7 @@ ${basePlans}`;
                   }`}>
                     <div className="flex items-center gap-2 text-gray-300">
                       <Tv2 size={18} />
-                      <span>GIGA+ TV</span>
+                      <span>GIGA+ </span>
                     </div>
                     <div className={`w-12 h-6 rounded-full transition-all relative ${
                       hasTVService ? 'bg-orange-600' : 'bg-white/10'
