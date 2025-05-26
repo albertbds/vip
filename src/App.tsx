@@ -147,7 +147,7 @@ function App() {
               { id: 'home', label: 'Início', icon: Home },
               { id: 'plans', label: 'Planos', icon: Search },
               ...(selectedCity && isTVAvailable(selectedCity) ? [
-                { id: 'tv', label: 'GIGA+ TV', icon: Tv2 }
+                { id: 'tv', label: 'GI+ TV', icon: Tv2 }
               ] : []),
               { id: 'streaming', label: 'Apps', icon: Smartphone },
               { id: 'condominiums', label: 'Condomínios', icon: Building2 },
