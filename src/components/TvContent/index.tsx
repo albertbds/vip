@@ -1,15 +1,18 @@
 import React, { useState, useRef } from 'react';
-import { Search, X, AlertCircle, Copy, Check, ChevronLeft, ChevronRight, Tv2, Film, Trophy } from 'lucide-react';
+import { Search, X, AlertCircle, Copy, Check, ChevronLeft, ChevronRight, Tv2, Film, Trophy, List } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { findTVTerritoryByCity } from '../../data/tvPlans';
 import { TVTerritory } from '../../types';
 import { SearchBar } from '../SearchBar';
+import { ChannelList } from './ChannelList';
 
 export function TvContent() {
   const [selectedTerritory, setSelectedTerritory] = useState<TVTerritory | null>(null);
   const [activeTab, setActiveTab] = useState('basic');
   const [copied, setCopied] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [showChannels, setShowChannels] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<'basic' | 'family' | 'cinema' | null>(null);
   const tabsRef = useRef<HTMLDivElement>(null);
   const [tabsScrollPosition, setTabsScrollPosition] = useState(0);
 
@@ -72,6 +75,11 @@ export function TvContent() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleShowChannels = (packageType: 'basic' | 'family' | 'cinema') => {
+    setSelectedPackage(packageType);
+    setShowChannels(true);
+  };
+
   return (
     <div className="w-full max-w-6xl mx-auto text-white">
       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 mb-8">
@@ -125,26 +133,41 @@ export function TvContent() {
               className="flex overflow-x-auto scrollbar-hide px-12 py-2 gap-2"
               style={{ scrollBehavior: 'smooth' }}
             >
-              {[
-                { id: 'basic', label: 'TV Básico', icon: Tv2 },
-                { id: 'family', label: 'TV Família', icon: Tv2 },
-                { id: 'cinema', label: 'TV Cinema', icon: Film },
-                { id: 'paramount', label: 'TV + Paramount', icon: Film },
-                { id: 'max', label: 'TV + MAX + Paramount', icon: Trophy }
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
-                    activeTab === tab.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white/5 text-gray-400 hover:bg-white/10'
-                  }`}
-                >
-                  <tab.icon size={16} />
-                  {tab.label}
-                </button>
-              ))}
+              <button
+                onClick={() => setActiveTab('basic')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                  activeTab === 'basic'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                }`}
+              >
+                <Tv2 size={16} />
+                TV Básico
+              </button>
+
+              <button
+                onClick={() => setActiveTab('family')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                  activeTab === 'family'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                }`}
+              >
+                <Tv2 size={16} />
+                TV Família
+              </button>
+
+              <button
+                onClick={() => setActiveTab('cinema')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                  activeTab === 'cinema'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                }`}
+              >
+                <Film size={16} />
+                TV Cinema
+              </button>
             </div>
 
             <button 
@@ -169,33 +192,35 @@ export function TvContent() {
                   type="text"
                   value={selectedTerritory?.cities[0] || ''}
                   disabled
-                  placeholder="Ciss"
+                  placeholder="Cidade"
                   className="bg-white/5 border border-white/10 rounded-lg p-3 text-gray-300"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  value={selectedTerritory?.id || ''}
-                  disabled
-                  placeholder="Empresa"
-                  className="bg-white/5 border border-white/10 rounded-lg p-3 text-gray-300"
-                />
-                <input
-                  type="text"
-                  value="marca empresa"
-                  disabled
-                  placeholder="marca empresa"
-                  className="bg-white/5 border border-white/10 rounded-lg p-3 text-gray-300"
-                />
-              </div>
+              <div className="space-y-2">
+                <button
+                  onClick={() => handleShowChannels('basic')}
+                  className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-between"
+                >
+                  <span>Pacote Básico</span>
+                  <List size={16} />
+                </button>
 
-              <div className="bg-gradient-to-r from-[rgba(31,56,77,0.4)] to-[rgba(41,50,60,0.5)] p-4 rounded-lg">
-                <p className="text-red-400 flex items-center gap-2">
-                  <AlertCircle size={16} />
-                  Não permitido uso de comprovantes terceiros
-                </p>
+                <button
+                  onClick={() => handleShowChannels('family')}
+                  className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-between"
+                >
+                  <span>Pacote Família</span>
+                  <List size={16} />
+                </button>
+
+                <button
+                  onClick={() => handleShowChannels('cinema')}
+                  className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-between"
+                >
+                  <span>Pacote Cinema</span>
+                  <List size={16} />
+                </button>
               </div>
             </div>
 
@@ -218,6 +243,12 @@ export function TvContent() {
           </div>
         </div>
       )}
+
+      <ChannelList
+        isOpen={showChannels}
+        onClose={() => setShowChannels(false)}
+        packageType={selectedPackage}
+      />
     </div>
   );
 }
