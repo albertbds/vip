@@ -1,7 +1,16 @@
 import React from 'react';
-import { Building } from 'lucide-react';
+import { Building, List } from 'lucide-react';
+import { ChannelList } from '../ChannelList';
 
 export function Condominiums() {
+  const [showChannels, setShowChannels] = React.useState(false);
+  const [selectedPackage, setSelectedPackage] = React.useState<'basic' | 'family' | 'cinema' | null>(null);
+
+  const handleShowChannels = (packageType: 'basic' | 'family' | 'cinema') => {
+    setSelectedPackage(packageType);
+    setShowChannels(true);
+  };
+
   return (
     <div className="w-full max-w-6xl mx-auto">
       <div className="bg-white rounded-lg shadow-lg p-8">
@@ -57,7 +66,40 @@ export function Condominiums() {
             </ul>
           </div>
         </div>
+
+        <div className="mt-6 p-4 bg-blue-600 rounded-lg">
+          <h3 className="text-lg font-semibold text-white mb-4">Canais Disponíveis</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <button
+              onClick={() => handleShowChannels('basic')}
+              className="flex items-center justify-between p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all"
+            >
+              <span>Pacote Básico</span>
+              <List size={16} />
+            </button>
+            <button
+              onClick={() => handleShowChannels('family')}
+              className="flex items-center justify-between p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all"
+            >
+              <span>Pacote Família</span>
+              <List size={16} />
+            </button>
+            <button
+              onClick={() => handleShowChannels('cinema')}
+              className="flex items-center justify-between p-4 bg-white/10 hover:bg-white/20 rounded-lg text-white transition-all"
+            >
+              <span>Pacote Cinema</span>
+              <List size={16} />
+            </button>
+          </div>
+        </div>
       </div>
+
+      <ChannelList
+        isOpen={showChannels}
+        onClose={() => setShowChannels(false)}
+        packageType={selectedPackage}
+      />
     </div>
   );
 }
