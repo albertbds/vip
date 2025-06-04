@@ -141,7 +141,7 @@ Roteador fornecido em comodato_
 ${basePlans}`;
 
     if (hasTVService || hasPhoneService) {
-      message += '\n\n🎉 Serviços disponíveis:';
+      message += '\n\n🎉 Adicione ao Plano: Consulte valores';
       if (hasTVService) message += '\n• GIGA+ TV disponível';
       if (hasPhoneService) message += '\n• Telefonia disponível';
     }
