@@ -6,23 +6,23 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: '#7C3AED', // Modern purple
-          dark: '#6D28D9',
-          light: '#8B5CF6'
+          DEFAULT: '#0066CC', // Blue
+          dark: '#004C99',
+          light: '#3399FF'
         },
         secondary: {
-          DEFAULT: '#EC4899', // Modern pink
-          dark: '#DB2777',
-          light: '#F472B6'
+          DEFAULT: '#FF0000', // Red
+          dark: '#CC0000',
+          light: '#FF3333'
         },
         accent: {
-          DEFAULT: '#3B82F6', // Modern blue
-          dark: '#2563EB',
-          light: '#60A5FA'
+          DEFAULT: '#00CC00', // Green
+          dark: '#009900',
+          light: '#33FF33'
         },
         background: {
-          dark: '#0F172A',
-          DEFAULT: '#1E293B'
+          dark: '#000000', // Black
+          DEFAULT: '#1A1A1A'
         }
       },
       animation: {

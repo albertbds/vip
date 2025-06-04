@@ -5,14 +5,12 @@ import { findTerritoryByCity } from './data';
 import { SplineSceneBasic } from './components/SplineSceneBasic';
 import { AppList } from './components/AppList';
 import { StreamingContent } from './components/StreamingContent';
-import { TvContent } from './components/TvContent';
 import { Condominiums } from './components/Condominiums';
 import { PlansDetailModal } from './components/PlansDetailModal';
 import { CpfConsult } from './components/CpfConsult';
 import { FAQ } from './components/FAQ';
-import { Home, Building2, Search, Tv2, Smartphone, HelpCircle, Mail, Lock, UserPlus } from 'lucide-react';
+import { Home, Building2, Search, Smartphone, HelpCircle, Mail, Lock, UserPlus } from 'lucide-react';
 import { useSearch } from './contexts/SearchContext';
-import { isTVAvailable, isPhoneAvailable } from './data/tvPlans';
 import { LoginScreen } from './components/LoginScreen';
 
 function App() {
@@ -74,8 +72,6 @@ function App() {
             </div>
           </div>
         );
-      case 'tv':
-        return <TvContent />;
       case 'streaming':
         return <StreamingContent />;
       case 'condominiums':
@@ -146,9 +142,6 @@ function App() {
             {[
               { id: 'home', label: 'Início', icon: Home },
               { id: 'plans', label: 'Planos', icon: Search },
-              ...(selectedCity && isTVAvailable(selectedCity) ? [
-                { id: 'tv', label: 'GI+ TV', icon: Tv2 }
-              ] : []),
               { id: 'streaming', label: 'Apps', icon: Smartphone },
               { id: 'condominiums', label: 'Condomínios', icon: Building2 },
               { id: 'faq', label: 'Dúvidas', icon: HelpCircle }
@@ -158,9 +151,7 @@ function App() {
                   onClick={() => setCurrentPage(item.id)}
                   className={`w-full text-left px-3 py-2 rounded-lg transition-all flex items-center gap-2 ${
                     currentPage === item.id
-                      ? item.id === 'tv'
-                        ? 'bg-orange-600 text-white'
-                        : 'bg-gradient-to-r from-primary to-secondary text-white'
+                      ? 'bg-gradient-to-r from-primary to-secondary text-white'
                       : 'text-gray-300 hover:bg-white/10'
                   }`}
                 >
