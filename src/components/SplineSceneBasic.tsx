@@ -19,7 +19,7 @@ export function SplineSceneBasic() {
             </h1>
             
             <p className="text-lg text-gray-300 mb-12 max-w-2xl">
-              Atualizado Ebook de junho
+              Atualizado Ebook de junho  AVISO: PLANOS DE TV INDISPONÍVEL ATÉ A PROXIMA ATUALIZAÇÃO!!
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
