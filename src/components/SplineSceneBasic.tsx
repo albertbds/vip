@@ -19,7 +19,7 @@ export function SplineSceneBasic() {
             </h1>
             
             <p className="text-lg text-gray-300 mb-12 max-w-2xl">
-              01/05 até 31/05
+              Atualizado Ebook de junho
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
