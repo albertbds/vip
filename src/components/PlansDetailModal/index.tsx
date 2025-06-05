@@ -373,7 +373,7 @@ ${basePlans}`;
                 <div className="bg-gradient-to-r from-[rgba(31,56,77,0.4)] to-[rgba(41,50,60,0.5)] p-4 rounded-lg">
                   <p className="text-red-400 flex items-center gap-2">
                     <AlertCircle size={16} />
-                    Não permitido uso de comprovantes terceiros
+                    sem informação
                   </p>
                 </div>
               </div>
