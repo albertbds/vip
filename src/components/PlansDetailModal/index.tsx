@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { X, Tag, Store, Play, Phone, Tv2, Copy, Check, AlertCircle, ChevronLeft, ChevronRight, Film } from 'lucide-react';
 import { Territory } from '../../types';
 import { motion, AnimatePresence } from 'framer-motion';
-import { isTVAvailable, isPhoneAvailable, tvPlans } from '../../data/tvPlans';
+import { isTVAvailable, isPhoneAvailable } from '../../data/tvPlans';
 import { getBrandForCity } from '../../data/cityBrands';
+import { getTVPlans } from '../../data/plans';
 
 interface PlansDetailModalProps {
   isOpen: boolean;
@@ -66,6 +67,7 @@ Inclua um aplicativo ao seu pacote:
 
     if (activeTab.startsWith('tv-')) {
       const planType = activeTab.split('-')[1];
+      const tvPlans = getTVPlans();
       const tvPlan = tvPlans.find(p => p.name.toLowerCase().includes(planType));
       if (!tvPlan) return '';
 
