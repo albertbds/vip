@@ -9,7 +9,8 @@ import { Condominiums } from './components/Condominiums';
 import { PlansDetailModal } from './components/PlansDetailModal';
 import { CpfConsult } from './components/CpfConsult';
 import { FAQ } from './components/FAQ';
-import { Home, Building2, Search, Smartphone, HelpCircle, Mail, Lock, UserPlus } from 'lucide-react';
+import { TvContent } from './components/TvContent';
+import { Home, Building2, Search, Smartphone, HelpCircle, Mail, Lock, UserPlus, Tv } from 'lucide-react';
 import { useSearch } from './contexts/SearchContext';
 import { LoginScreen } from './components/LoginScreen';
 
@@ -76,6 +77,8 @@ function App() {
         return <StreamingContent />;
       case 'condominiums':
         return <Condominiums />;
+      case 'channels':
+        return <TvContent />;
       case 'faq':
         return (
           <div className="w-full max-w-4xl mx-auto">
@@ -143,6 +146,7 @@ function App() {
               { id: 'home', label: 'Início', icon: Home },
               { id: 'plans', label: 'Planos', icon: Search },
               { id: 'streaming', label: 'Apps', icon: Smartphone },
+              { id: 'channels', label: 'Canais', icon: Tv },
               { id: 'condominiums', label: 'Condomínios', icon: Building2 },
               { id: 'faq', label: 'Dúvidas', icon: HelpCircle }
             ].map(item => (

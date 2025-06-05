@@ -39,50 +39,119 @@ export const phoneCities = new Set([
   'GUARAPARI', 'ITAOCARA', 'MACUCO', 'MURIAÉ', 'VILA VELHA', 'VITÓRIA'
 ]);
 
-export const tvPlans = [
-  {
-    name: "TV Básico",
-    channels: "35 Canais ao vivo",
-    description: "Conecte-se com mais velocidade, com Internet 100% Fibra.",
-    plans: [
-      { speed: "920MB", price: "189,99", priceAfter: "209,99" },
-      { speed: "800MB", price: "169,99", priceAfter: "189,99" },
-      { speed: "600MB", price: "149,99", priceAfter: "169,99" },
-      { speed: "400MB", price: "129,99", priceAfter: "149,99" }
-    ]
-  },
-  {
-    name: "TV Família",
-    channels: "48 Canais ao vivo",
-    description: "Mais canais e conteúdo para toda a família.",
-    plans: [
-      { speed: "920MB", price: "209,99", priceAfter: "229,99" },
-      { speed: "800MB", price: "189,99", priceAfter: "209,99" },
-      { speed: "600MB", price: "169,99", priceAfter: "189,99" },
-      { speed: "400MB", price: "149,99", priceAfter: "169,99" }
-    ]
-  },
-  {
-    name: "TV Cinema",
-    channels: "48 Canais ao vivo",
-    description: "A melhor experiência em filmes e séries.",
-    plans: [
-      { speed: "920MB", price: "229,99", priceAfter: "249,99" },
-      { speed: "800MB", price: "209,99", priceAfter: "229,99" },
-      { speed: "600MB", price: "189,99", priceAfter: "209,99" },
-      { speed: "400MB", price: "169,99", priceAfter: "189,99" }
-    ]
+const createTVPlans = (city: string) => {
+  // Special pricing for specific cities
+  const isSpecialPricing = ['ITAÚ DE MINAS', 'SÃO JOÃO BATISTA DO GLÓRIA'].includes(city);
+  if (isSpecialPricing) {
+    return [
+      {
+        name: "Internet Básica",
+        channels: "Internet Only",
+        description: "Conecte-se com mais velocidade",
+        plans: [
+          { speed: "300MB", price: "89,99", priceAfter: "99,99" },
+          { speed: "150MB", price: "79,99", priceAfter: "89,99" },
+          { speed: "100MB", price: "69,99", priceAfter: "79,99" }
+        ]
+      }
+    ];
   }
-];
 
-export const tvTerritories: TVTerritory[] = [
-  {
-    id: "T1",
-    name: "Região 1",
-    cities: Array.from(tvCities),
-    plans: tvPlans
+  // Check if city is in the second group (with different pricing)
+  const isSecondGroup = [
+    'ACARAÚ', 'AQUIRAZ', 'APERIBÉ', 'BEBERIBE', 'CAMOCIM', 'CAMBUCI', 'CANTAGALO',
+    'CASCAVEL', 'CAUCAIA', 'CORDEIRO', 'CRUZ', 'DUAS BARRAS', 'EUSÉBIO', 'FORTALEZA',
+    'FORTIM', 'FRECHEIRINHA', 'GRAÇA', 'GRANJA', 'IBIAPINA', 'ITAOCARA', 'ITAITINGA',
+    'ITAPIPOCA', 'ITAREMA', 'ITAPERUNA', 'JIJOCA DE JERICOACOARA', 'LIMOEIRO DO NORTE',
+    'MACUCO', 'MARACANAÚ', 'MARANGUAPE', 'MIRACEMA', 'MORADA NOVA', 'MUCAMBO', 'PACAJUS',
+    'PACATUBA', 'PACUJÁ', 'PARACURU', 'PARAIPABA', 'PENTECOSTE', 'PINDORETAMA',
+    'QUIXADÁ', 'RUSSAS', 'SÃO BENEDITO', 'SÃO GONÇALO DO AMARANTE', 'SÃO LUÍS DO CURU',
+    'SOBRAL', 'TABULEIRO DO NORTE', 'TIANGUÁ', 'TRAIRI', 'UBAJARA', 'TERESINA', 'ALTOS',
+    'PARNAÍBA'
+  ].includes(city);
+
+  if (isSecondGroup) {
+    return [
+      {
+        name: "TV Básico",
+        channels: "35 Canais ao vivo",
+        description: "A melhor experiência em filmes e séries.",
+        plans: [
+          { speed: "920MB", price: "189,99", priceAfter: "209,99" },
+          { speed: "800MB", price: "159,99", priceAfter: "179,99" },
+          { speed: "600MB", price: "139,99", priceAfter: "159,99" },
+          { speed: "400MB", price: "119,99", priceAfter: "139,99" }
+        ]
+      },
+      {
+        name: "TV Família",
+        channels: "48 Canais ao vivo + Paramount",
+        description: "A melhor experiência em filmes e séries.",
+        plans: [
+          { speed: "920MB", price: "204,99", priceAfter: "224,99" },
+          { speed: "800MB", price: "174,99", priceAfter: "194,99" },
+          { speed: "600MB", price: "154,99", priceAfter: "174,99" },
+          { speed: "400MB", price: "134,99", priceAfter: "154,99" }
+        ]
+      },
+      {
+        name: "TV Cinema",
+        channels: "48 Canais ao vivo + Paramount + Max",
+        description: "A melhor experiência em filmes e séries.",
+        plans: [
+          { speed: "920MB", price: "214,99", priceAfter: "234,99" },
+          { speed: "800MB", price: "184,99", priceAfter: "204,99" },
+          { speed: "600MB", price: "164,99", priceAfter: "184,99" },
+          { speed: "400MB", price: "144,99", priceAfter: "164,99" }
+        ]
+      }
+    ];
   }
-];
+
+  // Default TV plans for other cities
+  return [
+    {
+      name: "TV Básico",
+      channels: "35 Canais ao vivo",
+      description: "A melhor experiência em filmes e séries.",
+      plans: [
+        { speed: "920MB", price: "189,99", priceAfter: "209,99" },
+        { speed: "800MB", price: "169,99", priceAfter: "189,99" },
+        { speed: "600MB", price: "149,99", priceAfter: "169,99" },
+        { speed: "400MB", price: "129,99", priceAfter: "149,99" }
+      ]
+    },
+    {
+      name: "TV Família",
+      channels: "48 Canais ao vivo + Paramount",
+      description: "A melhor experiência em filmes e séries.",
+      plans: [
+        { speed: "920MB", price: "204,99", priceAfter: "224,99" },
+        { speed: "800MB", price: "184,99", priceAfter: "204,99" },
+        { speed: "600MB", price: "164,99", priceAfter: "184,99" },
+        { speed: "400MB", price: "144,99", priceAfter: "164,99" }
+      ]
+    },
+    {
+      name: "TV Cinema",
+      channels: "48 Canais ao vivo + Paramount + Max",
+      description: "A melhor experiência em filmes e séries.",
+      plans: [
+        { speed: "920MB", price: "214,99", priceAfter: "234,99" },
+        { speed: "800MB", price: "194,99", priceAfter: "214,99" },
+        { speed: "600MB", price: "174,99", priceAfter: "194,99" },
+        { speed: "400MB", price: "154,99", priceAfter: "174,99" }
+      ]
+    }
+  ];
+};
+
+export const tvTerritories: TVTerritory[] = Array.from(tvCities).map(city => ({
+  id: "T1",
+  name: "Região 1",
+  cities: [city],
+  plans: createTVPlans(city)
+}));
 
 export function findTVTerritoryByCity(city: string): TVTerritory | undefined {
   return tvTerritories.find(t => t.cities.includes(city.toUpperCase()));
