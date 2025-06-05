@@ -253,7 +253,7 @@ ${basePlans}`;
                       }`}
                     >
                       <Tv2 size={18} />
-                      TV Básico
+                      desativado
                     </button>
 
                     <button
