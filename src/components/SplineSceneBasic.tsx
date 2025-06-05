@@ -15,7 +15,7 @@ export function SplineSceneBasic() {
         <div className="relative z-10 p-8 md:p-12">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent mb-6">
-              Giga+ 
+              Giga+ Fibra
             </h1>
             
             <p className="text-lg text-gray-300 mb-12 max-w-2xl">
