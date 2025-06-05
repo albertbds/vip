@@ -15,11 +15,11 @@ export function SplineSceneBasic() {
         <div className="relative z-10 p-8 md:p-12">
           <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl md:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent mb-6">
-              Bem-vindo
+              EM BREVE O ACESSO A PLATAFORMA SERÁ PAGO XD
             </h1>
             
             <p className="text-lg text-gray-300 mb-12 max-w-2xl">
-              Atualizado Ebook de junho!! EM BREVE O ACESSO A PLATAFORMA SERÁ PAGO XD
+              Atualizado Ebook de junho!!
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
