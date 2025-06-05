@@ -265,7 +265,7 @@ ${basePlans}`;
                       }`}
                     >
                       <Tv2 size={18} />
-                      desativasdo 2
+                      desativado 2
                     </button>
 
                     <button
