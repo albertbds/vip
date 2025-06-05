@@ -235,7 +235,7 @@ export function TvTestContent() {
                   <div className="message-text-container">
                     <p className="message-text text-red-400 flex items-center gap-2">
                       <AlertCircle size={16} />
-                      Não permitido uso de comprovantes terceiros
+                      sem informação
                     </p>
                   </div>
                 </div>
