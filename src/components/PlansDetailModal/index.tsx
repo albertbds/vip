@@ -253,7 +253,7 @@ ${basePlans}`;
                       }`}
                     >
                       <Tv2 size={18} />
-                      desativado
+                      desativado 1
                     </button>
 
                     <button
@@ -265,7 +265,7 @@ ${basePlans}`;
                       }`}
                     >
                       <Tv2 size={18} />
-                      TV Família
+                      desativasdo 2
                     </button>
 
                     <button
@@ -277,7 +277,7 @@ ${basePlans}`;
                       }`}
                     >
                       <Film size={18} />
-                      TV Cinema
+                      desativado 3
                     </button>
                   </>
                 )}
