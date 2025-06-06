@@ -10,6 +10,7 @@ import { PlansDetailModal } from './components/PlansDetailModal';
 import { CpfConsult } from './components/CpfConsult';
 import { FAQ } from './components/FAQ';
 import { TvContent } from './components/TvContent';
+import { PaymentWarningModal } from './components/PaymentWarningModal';
 import { Home, Building2, Search, Smartphone, HelpCircle, Mail, Lock, UserPlus, Tv } from 'lucide-react';
 import { useSearch } from './contexts/SearchContext';
 import { LoginScreen } from './components/LoginScreen';
@@ -107,6 +108,9 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background-dark via-background to-background-dark relative">
+      {/* Modal de aviso de pagamento */}
+      <PaymentWarningModal />
+
       {/* Background Art */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
         {/* Abstract Shapes */}

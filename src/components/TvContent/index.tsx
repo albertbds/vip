@@ -106,143 +106,153 @@ export function TvContent() {
         )}
       </AnimatePresence>
 
-      {selectedTerritory && (
-        <div className="bg-[#1D1E2C] rounded-lg w-full overflow-hidden">
-          <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <h2 className="text-lg font-medium flex items-center gap-2">
-              <span className="text-gray-400">≡</span> Detalhes
-            </h2>
-            <button 
-              onClick={() => setSelectedTerritory(null)}
-              className="text-gray-400 hover:text-white transition-colors"
+      {/* Modal sobreposto */}
+      <AnimatePresence>
+        {selectedTerritory && (
+          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-[#1D1E2C] rounded-lg w-full max-w-6xl max-h-[90vh] overflow-hidden border border-white/10"
             >
-              <X size={20} />
-            </button>
-          </div>
-
-          <div className="relative border-b border-white/10">
-            <button 
-              onClick={() => handleScroll('left')}
-              className="absolute left-0 top-1/2 -translate-y-1/2 bg-gradient-to-r from-[#1D1E2C] to-transparent px-2 h-full z-10"
-            >
-              <ChevronLeft className="text-gray-400" />
-            </button>
-
-            <div 
-              ref={tabsRef}
-              className="flex overflow-x-auto scrollbar-hide px-12 py-2 gap-2"
-              style={{ scrollBehavior: 'smooth' }}
-            >
-              <button
-                onClick={() => setActiveTab('basic')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
-                  activeTab === 'basic'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
-                }`}
-              >
-                <Tv2 size={16} />
-                TV Básico
-              </button>
-
-              <button
-                onClick={() => setActiveTab('family')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
-                  activeTab === 'family'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
-                }`}
-              >
-                <Tv2 size={16} />
-                TV Família
-              </button>
-
-              <button
-                onClick={() => setActiveTab('cinema')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
-                  activeTab === 'cinema'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white/5 text-gray-400 hover:bg-white/10'
-                }`}
-              >
-                <Film size={16} />
-                TV Cinema
-              </button>
-            </div>
-
-            <button 
-              onClick={() => handleScroll('right')}
-              className="absolute right-0 top-1/2 -translate-y-1/2 bg-gradient-to-l from-[#1D1E2C] to-transparent px-2 h-full z-10"
-            >
-              <ChevronRight className="text-gray-400" />
-            </button>
-          </div>
-
-          <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <input
-                  type="text"
-                  value={selectedTerritory?.name || ''}
-                  disabled
-                  placeholder="Estado"
-                  className="bg-white/5 border border-white/10 rounded-lg p-3 text-gray-300"
-                />
-                <input
-                  type="text"
-                  value={selectedTerritory?.cities[0] || ''}
-                  disabled
-                  placeholder="Cidade"
-                  className="bg-white/5 border border-white/10 rounded-lg p-3 text-gray-300"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <button
-                  onClick={() => handleShowChannels('basic')}
-                  className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-between"
+              <div className="flex items-center justify-between p-4 border-b border-white/10">
+                <h2 className="text-lg font-medium flex items-center gap-2">
+                  <span className="text-gray-400">≡</span> Detalhes dos Planos TV
+                </h2>
+                <button 
+                  onClick={() => setSelectedTerritory(null)}
+                  className="text-gray-400 hover:text-white transition-colors p-2 hover:bg-white/5 rounded-lg"
                 >
-                  <span>Pacote Básico</span>
-                  <List size={16} />
-                </button>
-
-                <button
-                  onClick={() => handleShowChannels('family')}
-                  className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-between"
-                >
-                  <span>Pacote Família</span>
-                  <List size={16} />
-                </button>
-
-                <button
-                  onClick={() => handleShowChannels('cinema')}
-                  className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-between"
-                >
-                  <span>Pacote Cinema</span>
-                  <List size={16} />
+                  <X size={20} />
                 </button>
               </div>
-            </div>
 
-            <div className="relative">
-              <textarea
-                value={getPlansText()}
-                readOnly
-                className="w-full h-[400px] bg-white/5 border border-white/10 rounded-lg p-4 text-gray-300 resize-none font-mono"
-              />
-              <div className="absolute top-4 right-4 bg-white/10 px-2 py-1 rounded text-xs text-gray-400">
-                {activeTab.toUpperCase()}
+              <div className="relative border-b border-white/10">
+                <button 
+                  onClick={() => handleScroll('left')}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 bg-gradient-to-r from-[#1D1E2C] to-transparent px-2 h-full z-10"
+                >
+                  <ChevronLeft className="text-gray-400" />
+                </button>
+
+                <div 
+                  ref={tabsRef}
+                  className="flex overflow-x-auto scrollbar-hide px-12 py-2 gap-2"
+                  style={{ scrollBehavior: 'smooth' }}
+                >
+                  <button
+                    onClick={() => setActiveTab('basic')}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                      activeTab === 'basic'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                    }`}
+                  >
+                    <Tv2 size={16} />
+                    TV Básico
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('family')}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                      activeTab === 'family'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                    }`}
+                  >
+                    <Tv2 size={16} />
+                    TV Família
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('cinema')}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all whitespace-nowrap ${
+                      activeTab === 'cinema'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white/5 text-gray-400 hover:bg-white/10'
+                    }`}
+                  >
+                    <Film size={16} />
+                    TV Cinema
+                  </button>
+                </div>
+
+                <button 
+                  onClick={() => handleScroll('right')}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-gradient-to-l from-[#1D1E2C] to-transparent px-2 h-full z-10"
+                >
+                  <ChevronRight className="text-gray-400" />
+                </button>
               </div>
-              <button
-                onClick={handleCopy}
-                className="absolute bottom-4 right-4 p-2 rounded bg-white/10 hover:bg-white/20 transition-colors text-gray-400"
-              >
-                {copied ? <Check size={20} /> : <Copy size={20} />}
-              </button>
-            </div>
+
+              <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 max-h-[calc(90vh-180px)] overflow-y-auto">
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <input
+                      type="text"
+                      value={selectedTerritory?.name || ''}
+                      disabled
+                      placeholder="Estado"
+                      className="bg-white/5 border border-white/10 rounded-lg p-3 text-gray-300"
+                    />
+                    <input
+                      type="text"
+                      value={selectedTerritory?.cities[0] || ''}
+                      disabled
+                      placeholder="Cidade"
+                      className="bg-white/5 border border-white/10 rounded-lg p-3 text-gray-300"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <button
+                      onClick={() => handleShowChannels('basic')}
+                      className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-between"
+                    >
+                      <span>Pacote Básico</span>
+                      <List size={16} />
+                    </button>
+
+                    <button
+                      onClick={() => handleShowChannels('family')}
+                      className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-between"
+                    >
+                      <span>Pacote Família</span>
+                      <List size={16} />
+                    </button>
+
+                    <button
+                      onClick={() => handleShowChannels('cinema')}
+                      className="w-full p-3 bg-white/5 hover:bg-white/10 rounded-lg flex items-center justify-between"
+                    >
+                      <span>Pacote Cinema</span>
+                      <List size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <textarea
+                    value={getPlansText()}
+                    readOnly
+                    className="w-full h-[400px] bg-white/5 border border-white/10 rounded-lg p-4 text-gray-300 resize-none font-mono"
+                  />
+                  <div className="absolute top-4 right-4 bg-white/10 px-2 py-1 rounded text-xs text-gray-400">
+                    {activeTab.toUpperCase()}
+                  </div>
+                  <button
+                    onClick={handleCopy}
+                    className="absolute bottom-4 right-4 p-2 rounded bg-white/10 hover:bg-white/20 transition-colors text-gray-400"
+                  >
+                    {copied ? <Check size={20} /> : <Copy size={20} />}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       <ChannelList
         isOpen={showChannels}
