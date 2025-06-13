@@ -56,7 +56,7 @@ function App() {
         return (
           <div className="text-center space-y-4">
             <h2 className="text-3xl font-bold gradient-text">Consulte a disponibilidade na cidade</h2>
-            <p className="text-primary-light text-lg">Digite o nome da sua cidade para verificar os planos disponíveis</p>
+            <p className="text-primary-light text-lg">Digite o nome da cidade para verificar os planos disponíveis</p>
             <div className="max-w-xl mx-auto">
               <SearchBar onCitySelect={handleCitySelect} />
               <div className="mt-4 flex flex-wrap gap-2 justify-center">
