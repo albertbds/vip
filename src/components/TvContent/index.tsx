@@ -85,7 +85,7 @@ export function TvContent() {
       <div className="bg-white/10 backdrop-blur-sm rounded-lg p-8 mb-8">
         <div className="text-center space-y-4">
           <h2 className="text-2xl font-bold">Consulte a disponibilidade na cidade</h2>
-          <p className="text-gray-300">Digite o nome da sua cidade para verificar os planos disponíveis</p>
+          <p className="text-gray-300">Digite o nome da cidade para verificar os planos disponíveis</p>
           <div className="max-w-xl mx-auto">
             <SearchBar onCitySelect={handleCitySelect} customCities={true} />
           </div>
