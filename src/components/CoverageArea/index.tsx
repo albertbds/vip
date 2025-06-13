@@ -138,7 +138,7 @@ export function CoverageArea() {
         <div className="text-center space-y-4">
           <div className="flex items-center justify-center gap-3 mb-4">
             <MapPin className="w-8 h-8 text-blue-400" />
-            <h1 className="text-3xl font-bold gradient-text">Área de Cobertura</h1>
+            <h1 className="text-3xl font-bold gradient-text">em manutenção</h1>
           </div>
           <p className="text-gray-300 text-lg max-w-2xl mx-auto">
             Verifique se sua cidade está na nossa área de cobertura. Digite o CEP, nome da rua ou cidade para localizar no mapa.
