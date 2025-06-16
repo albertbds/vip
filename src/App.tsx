@@ -11,8 +11,7 @@ import { CpfConsult } from './components/CpfConsult';
 import { FAQ } from './components/FAQ';
 import { TvContent } from './components/TvContent';
 import { PaymentWarningModal } from './components/PaymentWarningModal';
-import { CoverageArea } from './components/CoverageArea';
-import { Home, Building2, Search, Smartphone, HelpCircle, Mail, Lock, UserPlus, Tv, MapPin } from 'lucide-react';
+import { Home, Building2, Search, Smartphone, HelpCircle, Mail, Lock, UserPlus, Tv } from 'lucide-react';
 import { useSearch } from './contexts/SearchContext';
 import { LoginScreen } from './components/LoginScreen';
 
@@ -75,8 +74,6 @@ function App() {
             </div>
           </div>
         );
-      case 'area':
-        return <CoverageArea />;
       case 'streaming':
         return <StreamingContent />;
       case 'condominiums':
@@ -152,7 +149,6 @@ function App() {
             {[
               { id: 'home', label: 'Início', icon: Home },
               { id: 'plans', label: 'Planos', icon: Search },
-              { id: 'area', label: 'Área', icon: MapPin },
               { id: 'streaming', label: 'Apps', icon: Smartphone },
               { id: 'channels', label: 'Canais', icon: Tv },
               { id: 'condominiums', label: 'Condomínios', icon: Building2 },
