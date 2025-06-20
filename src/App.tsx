@@ -11,17 +11,18 @@ import { CpfConsult } from './components/CpfConsult';
 import { FAQ } from './components/FAQ';
 import { TvContent } from './components/TvContent';
 import { PaymentWarningModal } from './components/PaymentWarningModal';
-import { Home, Building2, Search, Smartphone, HelpCircle, Mail, Lock, UserPlus, Tv } from 'lucide-react';
+import { Home, Building2, Search, Smartphone, HelpCircle, Mail, Lock, UserPlus, Tv, LogOut, User } from 'lucide-react';
 import { useSearch } from './contexts/SearchContext';
 import { LoginScreen } from './components/LoginScreen';
+import { useAuth } from './contexts/AuthContext';
 
 function App() {
   const [selectedTerritory, setSelectedTerritory] = useState<Territory | null>(null);
-  const [currentPage, setCurrentPage] = useState('login');
+  const [currentPage, setCurrentPage] = useState('home');
   const [showPlansModal, setShowPlansModal] = useState(false);
   const { getTopSearchedCities, incrementSearchCount } = useSearch();
   const [selectedCity, setSelectedCity] = useState<string>('');
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { user, profile, signOut, loading } = useAuth();
 
   const handleCitySelect = (city: string) => {
     incrementSearchCount(city);
@@ -33,13 +34,27 @@ function App() {
     }
   };
 
-  const handleLogin = () => {
-    setIsAuthenticated(true);
-    setCurrentPage('home');
+  const handleSignOut = async () => {
+    await signOut();
   };
 
-  if (!isAuthenticated) {
-    return <LoginScreen onLogin={handleLogin} />;
+  // Mostrar tela de loading enquanto verifica autenticação
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-background-dark via-background to-background-dark flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl relative glow mx-auto mb-4 animate-pulse">
+            <span className="absolute inset-0 flex items-center justify-center text-3xl font-bold gradient-text">G</span>
+          </div>
+          <p className="text-gray-400">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Mostrar tela de login se não estiver autenticado
+  if (!user) {
+    return <LoginScreen />;
   }
 
   const topCities = getTopSearchedCities();
@@ -139,12 +154,18 @@ function App() {
       <nav className="fixed left-0 top-0 h-full w-48 glass-effect border-r border-primary/10 p-4 z-50">
         <div className="logo-name mb-8">
           <div className="logo-image flex items-center justify-center w-12 h-12 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl relative glow">
-            <span className="text-2xl font-bold gradient-text">A</span>
+            <span className="text-2xl font-bold gradient-text">G</span>
           </div>
-          <span className="text-sm text-primary-light mt-2 block">Mauá • GIGA+ Fibra</span>
+          <span className="text-sm text-primary-light mt-2 block">Giga+ Fibra</span>
+          {profile && (
+            <div className="mt-2">
+              <p className="text-xs text-gray-400">Olá, {profile.full_name || profile.email}</p>
+              <span className="text-xs text-green-400 capitalize">{profile.role}</span>
+            </div>
+          )}
         </div>
 
-        <div className="menu-items">
+        <div className="menu-items flex-1">
           <ul className="nav-links space-y-2">
             {[
               { id: 'home', label: 'Início', icon: Home },
@@ -169,6 +190,17 @@ function App() {
               </li>
             ))}
           </ul>
+        </div>
+
+        {/* User menu at bottom */}
+        <div className="mt-auto pt-4 border-t border-white/10">
+          <button
+            onClick={handleSignOut}
+            className="w-full text-left px-3 py-2 rounded-lg transition-all flex items-center gap-2 text-gray-300 hover:bg-red-500/20 hover:text-red-300"
+          >
+            <LogOut size={16} />
+            <span>Sair</span>
+          </button>
         </div>
       </nav>
 
