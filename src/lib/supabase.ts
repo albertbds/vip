@@ -13,7 +13,8 @@ export const supabase = supabaseUrl && supabaseAnonKey
       auth: {
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: false
+        detectSessionInUrl: false,
+        flowType: 'pkce'
       }
     })
   : null
@@ -28,6 +29,26 @@ export interface UserProfile {
   is_active: boolean
   created_at: string
   updated_at: string
+}
+
+// Função para limpar sessão inválida
+async function clearInvalidSession() {
+  if (!supabase) return
+  
+  try {
+    // Limpar sessão do Supabase
+    await supabase.auth.signOut()
+    
+    // Limpar localStorage manualmente se necessário
+    const keys = Object.keys(localStorage)
+    keys.forEach(key => {
+      if (key.startsWith('sb-') || key.includes('supabase')) {
+        localStorage.removeItem(key)
+      }
+    })
+  } catch (error) {
+    console.error('Erro ao limpar sessão:', error)
+  }
 }
 
 // Funções de autenticação com fallback
@@ -111,7 +132,7 @@ export const auth = {
     }
   },
 
-  // Obter usuário atual
+  // Obter usuário atual com tratamento de erro de token
   async getCurrentUser() {
     if (!supabase) {
       return { user: null, error: null }
@@ -119,9 +140,31 @@ export const auth = {
 
     try {
       const { data: { user }, error } = await supabase.auth.getUser()
+      
+      // Se houver erro relacionado ao refresh token, limpar sessão
+      if (error && (
+        error.message?.includes('refresh_token_not_found') ||
+        error.message?.includes('Invalid Refresh Token') ||
+        error.message?.includes('refresh token')
+      )) {
+        console.warn('Token de refresh inválido detectado, limpando sessão...')
+        await clearInvalidSession()
+        return { user: null, error: null }
+      }
+      
       return { user, error }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao obter usuário atual:', error)
+      
+      // Se for erro de token, limpar sessão
+      if (error?.message?.includes('refresh_token_not_found') ||
+          error?.message?.includes('Invalid Refresh Token') ||
+          error?.message?.includes('refresh token')) {
+        console.warn('Erro de token detectado, limpando sessão...')
+        await clearInvalidSession()
+        return { user: null, error: null }
+      }
+      
       return { user: null, error }
     }
   },
@@ -188,7 +231,7 @@ export const auth = {
     }
   },
 
-  // Escutar mudanças de autenticação
+  // Escutar mudanças de autenticação com tratamento de erro
   onAuthStateChange(callback: (event: string, session: any) => void) {
     if (!supabase) {
       // Retornar um subscription mock
@@ -200,6 +243,15 @@ export const auth = {
         }
       }
     }
-    return supabase.auth.onAuthStateChange(callback)
+
+    return supabase.auth.onAuthStateChange(async (event, session) => {
+      // Se houver erro de token, limpar sessão
+      if (event === 'TOKEN_REFRESHED' && !session) {
+        console.warn('Falha ao renovar token, limpando sessão...')
+        await clearInvalidSession()
+      }
+      
+      callback(event, session)
+    })
   }
 }

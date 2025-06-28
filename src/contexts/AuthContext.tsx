@@ -59,20 +59,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // Verificar usuário atual
+    // Verificar usuário atual com tratamento de erro de token
     async function checkCurrentUser() {
       try {
-        const { user: currentUser } = await auth.getCurrentUser()
+        const { user: currentUser, error } = await auth.getCurrentUser()
         
         if (mounted) {
-          if (currentUser) {
+          if (currentUser && !error) {
             setUser(currentUser)
             await loadUserProfile(currentUser.id)
+          } else {
+            // Se houver erro ou não houver usuário, limpar estado
+            setUser(null)
+            setProfile(null)
           }
           setLoading(false)
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Erro ao verificar usuário:', error)
+        
+        // Se for erro de token, limpar estado
+        if (error?.message?.includes('refresh_token_not_found') ||
+            error?.message?.includes('Invalid Refresh Token') ||
+            error?.message?.includes('refresh token')) {
+          console.warn('Erro de token detectado no contexto, limpando estado...')
+          if (mounted) {
+            setUser(null)
+            setProfile(null)
+          }
+        }
+        
         if (mounted) {
           setLoading(false)
         }
@@ -94,8 +110,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setUser(null)
           setProfile(null)
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Erro no auth state change:', error)
+        
+        // Se for erro de token, limpar estado
+        if (error?.message?.includes('refresh_token_not_found') ||
+            error?.message?.includes('Invalid Refresh Token') ||
+            error?.message?.includes('refresh token')) {
+          console.warn('Erro de token detectado no state change, limpando estado...')
+          if (mounted) {
+            setUser(null)
+            setProfile(null)
+          }
+        }
       } finally {
         if (mounted) {
           setLoading(false)
