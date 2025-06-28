@@ -11,7 +11,8 @@ import { CpfConsult } from './components/CpfConsult';
 import { FAQ } from './components/FAQ';
 import { TvContent } from './components/TvContent';
 import { PaymentWarningModal } from './components/PaymentWarningModal';
-import { Home, Building2, Search, Smartphone, HelpCircle, Mail, Lock, UserPlus, Tv, LogOut, User } from 'lucide-react';
+import { CepGeral } from './components/CepGeral';
+import { Home, Building2, Search, Smartphone, HelpCircle, Mail, Lock, UserPlus, Tv, LogOut, User, MapPin } from 'lucide-react';
 import { useSearch } from './contexts/SearchContext';
 import { LoginScreen } from './components/LoginScreen';
 import { useAuth } from './contexts/AuthContext';
@@ -116,6 +117,8 @@ function App() {
             <FAQ />
           </div>
         );
+      case 'cep-geral':
+        return <CepGeral />;
       default:
         return null;
     }
@@ -173,7 +176,8 @@ function App() {
               { id: 'streaming', label: 'Apps', icon: Smartphone },
               { id: 'channels', label: 'Canais', icon: Tv },
               { id: 'condominiums', label: 'Condomínios', icon: Building2 },
-              { id: 'faq', label: 'Dúvidas', icon: HelpCircle }
+              { id: 'faq', label: 'Dúvidas', icon: HelpCircle },
+              { id: 'cep-geral', label: 'CEP Geral', icon: MapPin }
             ].map(item => (
               <li key={item.id}>
                 <button
