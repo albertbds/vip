@@ -41,7 +41,11 @@ function App() {
   };
 
   const handleSignOut = async () => {
-    await signOut();
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Erro ao fazer logout:', error);
+    }
   };
 
   // Mostrar tela de loading enquanto verifica autenticação

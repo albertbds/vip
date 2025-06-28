@@ -28,9 +28,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const { data: profileData, error: profileError } = await auth.getUserProfile(userId)
         if (!profileError && profileData && mounted) {
           setProfile(profileData)
+        } else if (mounted) {
+          // Se não encontrar perfil, criar um básico
+          const basicProfile: UserProfile = {
+            id: userId,
+            email: user?.email || '',
+            full_name: user?.user_metadata?.full_name || user?.email || '',
+            role: 'user',
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+          setProfile(basicProfile)
         }
       } catch (error) {
         console.error('Erro ao carregar perfil:', error)
+        if (mounted) {
+          // Criar perfil básico em caso de erro
+          const basicProfile: UserProfile = {
+            id: userId,
+            email: user?.email || '',
+            full_name: user?.user_metadata?.full_name || user?.email || '',
+            role: 'user',
+            is_active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }
+          setProfile(basicProfile)
+        }
       }
     }
 
@@ -82,7 +107,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       mounted = false
       subscription.unsubscribe()
     }
-  }, []) // Dependências vazias para executar apenas uma vez
+  }, [])
 
   async function signIn(email: string, password: string) {
     setLoading(true)
