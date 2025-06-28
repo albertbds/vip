@@ -12,11 +12,10 @@ import { FAQ } from './components/FAQ';
 import { TvContent } from './components/TvContent';
 import { PaymentWarningModal } from './components/PaymentWarningModal';
 import { CepGeral } from './components/CepGeral';
-import { EmployeeTools } from './components/EmployeeTools';
-import { Dashboard } from './components/Dashboard';
+import { SalesManagement } from './components/SalesManagement';
 import { 
   Home, Building2, Search, Smartphone, HelpCircle, Tv, LogOut, MapPin, 
-  Briefcase, BarChart3, Calculator, FileText, Users, Settings, Bell
+  ShoppingCart, Calculator, FileText, Users, Settings, Bell
 } from 'lucide-react';
 import { useSearch } from './contexts/SearchContext';
 import { LoginScreen } from './components/LoginScreen';
@@ -24,7 +23,7 @@ import { useAuth } from './contexts/AuthContext';
 
 function App() {
   const [selectedTerritory, setSelectedTerritory] = useState<Territory | null>(null);
-  const [currentPage, setCurrentPage] = useState('dashboard');
+  const [currentPage, setCurrentPage] = useState('home');
   const [showPlansModal, setShowPlansModal] = useState(false);
   const { getTopSearchedCities, incrementSearchCount } = useSearch();
   const [selectedCity, setSelectedCity] = useState<string>('');
@@ -72,10 +71,9 @@ function App() {
   const topCities = getTopSearchedCities();
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: BarChart3, color: 'from-blue-500 to-cyan-500' },
     { id: 'home', label: 'Início', icon: Home, color: 'from-green-500 to-emerald-500' },
     { id: 'plans', label: 'Planos', icon: Search, color: 'from-purple-500 to-pink-500' },
-    { id: 'tools', label: 'Ferramentas', icon: Briefcase, color: 'from-orange-500 to-red-500' },
+    { id: 'sales', label: 'Vendas', icon: ShoppingCart, color: 'from-orange-500 to-red-500' },
     { id: 'streaming', label: 'Apps', icon: Smartphone, color: 'from-indigo-500 to-blue-500' },
     { id: 'channels', label: 'Canais', icon: Tv, color: 'from-pink-500 to-rose-500' },
     { id: 'condominiums', label: 'Condomínios', icon: Building2, color: 'from-teal-500 to-green-500' },
@@ -85,8 +83,6 @@ function App() {
 
   const renderContent = () => {
     switch (currentPage) {
-      case 'dashboard':
-        return <Dashboard />;
       case 'home':
         return (
           <div className="space-y-6">
@@ -121,8 +117,8 @@ function App() {
             </div>
           </div>
         );
-      case 'tools':
-        return <EmployeeTools />;
+      case 'sales':
+        return <SalesManagement />;
       case 'streaming':
         return <StreamingContent />;
       case 'condominiums':
@@ -240,7 +236,7 @@ function App() {
                 <item.icon size={18} />
               </div>
               <span className="font-medium">{item.label}</span>
-              {item.id === 'tools' && (
+              {item.id === 'sales' && (
                 <span className="ml-auto text-xs bg-orange-500/20 text-orange-400 px-2 py-1 rounded-full">
                   Novo
                 </span>
@@ -277,7 +273,7 @@ function App() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-bold text-white">
-                {menuItems.find(item => item.id === currentPage)?.label || 'Dashboard'}
+                {menuItems.find(item => item.id === currentPage)?.label || 'Início'}
               </h1>
               <p className="text-gray-400">
                 {new Date().toLocaleDateString('pt-BR', { 
