@@ -25,66 +25,101 @@ export interface UserProfile {
 export const auth = {
   // Registrar novo usuário
   async signUp(email: string, password: string, fullName?: string) {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName
+          }
         }
-      }
-    })
-    return { data, error }
+      })
+      return { data, error }
+    } catch (error) {
+      console.error('Erro no signUp:', error)
+      return { data: null, error }
+    }
   },
 
   // Fazer login
   async signIn(email: string, password: string) {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-    return { data, error }
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+      return { data, error }
+    } catch (error) {
+      console.error('Erro no signIn:', error)
+      return { data: null, error }
+    }
   },
 
   // Fazer logout
   async signOut() {
-    const { error } = await supabase.auth.signOut()
-    return { error }
+    try {
+      const { error } = await supabase.auth.signOut()
+      return { error }
+    } catch (error) {
+      console.error('Erro no signOut:', error)
+      return { error }
+    }
   },
 
   // Obter usuário atual
   async getCurrentUser() {
-    const { data: { user }, error } = await supabase.auth.getUser()
-    return { user, error }
+    try {
+      const { data: { user }, error } = await supabase.auth.getUser()
+      return { user, error }
+    } catch (error) {
+      console.error('Erro ao obter usuário atual:', error)
+      return { user: null, error }
+    }
   },
 
   // Obter perfil do usuário
   async getUserProfile(userId: string): Promise<{ data: UserProfile | null, error: any }> {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
-    
-    return { data, error }
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+      
+      return { data, error }
+    } catch (error) {
+      console.error('Erro ao obter perfil:', error)
+      return { data: null, error }
+    }
   },
 
   // Atualizar perfil do usuário
   async updateUserProfile(userId: string, updates: Partial<UserProfile>) {
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .update(updates)
-      .eq('id', userId)
-      .select()
-      .single()
-    
-    return { data, error }
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .update(updates)
+        .eq('id', userId)
+        .select()
+        .single()
+      
+      return { data, error }
+    } catch (error) {
+      console.error('Erro ao atualizar perfil:', error)
+      return { data: null, error }
+    }
   },
 
   // Verificar se usuário está autenticado
   async isAuthenticated() {
-    const { user } = await this.getCurrentUser()
-    return !!user
+    try {
+      const { user } = await this.getCurrentUser()
+      return !!user
+    } catch (error) {
+      console.error('Erro ao verificar autenticação:', error)
+      return false
+    }
   },
 
   // Escutar mudanças de autenticação

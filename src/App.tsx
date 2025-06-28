@@ -50,14 +50,15 @@ function App() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-20 h-20 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl relative glow mx-auto mb-6 animate-pulse">
+          <div className="w-20 h-20 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl relative glow mx-auto mb-6">
             <span className="absolute inset-0 flex items-center justify-center text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">G</span>
           </div>
-          <div className="space-y-2">
-            <div className="w-32 h-2 bg-white/10 rounded-full mx-auto animate-pulse"></div>
-            <div className="w-24 h-2 bg-white/10 rounded-full mx-auto animate-pulse"></div>
+          <div className="space-y-3">
+            <div className="w-32 h-2 bg-white/10 rounded-full mx-auto">
+              <div className="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+            </div>
+            <p className="text-gray-400">Carregando sistema...</p>
           </div>
-          <p className="text-gray-400 mt-4">Carregando...</p>
         </div>
       </div>
     );

@@ -18,61 +18,53 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
-  const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
-    let isMounted = true
+    let mounted = true
 
-    // Função para verificar usuário atual apenas uma vez
-    async function initializeAuth() {
-      if (initialized) return
+    // Função para carregar perfil do usuário
+    async function loadUserProfile(userId: string) {
+      try {
+        const { data: profileData, error: profileError } = await auth.getUserProfile(userId)
+        if (!profileError && profileData && mounted) {
+          setProfile(profileData)
+        }
+      } catch (error) {
+        console.error('Erro ao carregar perfil:', error)
+      }
+    }
 
+    // Verificar usuário atual
+    async function checkCurrentUser() {
       try {
         const { user: currentUser } = await auth.getCurrentUser()
         
-        if (!isMounted) return
-
-        if (currentUser) {
-          setUser(currentUser)
-          // Carregar perfil apenas se o usuário existir
-          try {
-            const { data: profileData, error: profileError } = await auth.getUserProfile(currentUser.id)
-            if (!profileError && profileData && isMounted) {
-              setProfile(profileData)
-            }
-          } catch (profileErr) {
-            console.error('Erro ao carregar perfil:', profileErr)
+        if (mounted) {
+          if (currentUser) {
+            setUser(currentUser)
+            await loadUserProfile(currentUser.id)
           }
+          setLoading(false)
         }
       } catch (error) {
         console.error('Erro ao verificar usuário:', error)
-      } finally {
-        if (isMounted) {
+        if (mounted) {
           setLoading(false)
-          setInitialized(true)
         }
       }
     }
 
-    // Inicializar autenticação
-    initializeAuth()
+    // Executar verificação inicial
+    checkCurrentUser()
 
     // Escutar mudanças de autenticação
     const { data: { subscription } } = auth.onAuthStateChange(async (event, session) => {
-      if (!isMounted) return
+      if (!mounted) return
 
       try {
         if (session?.user) {
           setUser(session.user)
-          // Carregar perfil do usuário
-          try {
-            const { data: profileData, error: profileError } = await auth.getUserProfile(session.user.id)
-            if (!profileError && profileData && isMounted) {
-              setProfile(profileData)
-            }
-          } catch (profileErr) {
-            console.error('Erro ao carregar perfil:', profileErr)
-          }
+          await loadUserProfile(session.user.id)
         } else {
           setUser(null)
           setProfile(null)
@@ -80,26 +72,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error('Erro no auth state change:', error)
       } finally {
-        if (isMounted && initialized) {
+        if (mounted) {
           setLoading(false)
         }
       }
     })
 
     return () => {
-      isMounted = false
+      mounted = false
       subscription.unsubscribe()
     }
-  }, [initialized])
+  }, []) // Dependências vazias para executar apenas uma vez
 
   async function signIn(email: string, password: string) {
     setLoading(true)
     try {
       const { data, error } = await auth.signIn(email, password)
-      if (!error && data.user) {
-        setUser(data.user)
-        // O perfil será carregado pelo onAuthStateChange
-      }
       return { error }
     } catch (error) {
       return { error }
@@ -112,10 +100,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true)
     try {
       const { data, error } = await auth.signUp(email, password, fullName)
-      if (!error && data.user) {
-        setUser(data.user)
-        // O perfil será criado automaticamente pelo trigger
-      }
       return { error }
     } catch (error) {
       return { error }
