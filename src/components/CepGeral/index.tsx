@@ -39,7 +39,7 @@ const brazilianCities: CityData[] = [
   { city: 'Ilhéus', state: 'BA', cep: '45650-000', region: 'Nordeste' },
   
   // Ceará
-  { city: 'Fortaleza', state: 'CE', cep: '60000-000', region: 'Nordeste' },
+  { city: 'Fortaleza', state: 'CE', cep: '60100-000', region: 'Nordeste' },
   { city: 'Caucaia', state: 'CE', cep: '61600-000', region: 'Nordeste' },
   { city: 'Juazeiro do Norte', state: 'CE', cep: '63010-000', region: 'Nordeste' },
   { city: 'Maracanaú', state: 'CE', cep: '61900-000', region: 'Nordeste' },
