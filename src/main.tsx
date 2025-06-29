@@ -4,13 +4,16 @@ import App from './App.tsx';
 import './index.css';
 import { SearchProvider } from './contexts/SearchContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { NotificationProvider } from './contexts/NotificationContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <AuthProvider>
-      <SearchProvider>
-        <App />
-      </SearchProvider>
+      <NotificationProvider>
+        <SearchProvider>
+          <App />
+        </SearchProvider>
+      </NotificationProvider>
     </AuthProvider>
   </StrictMode>
 );

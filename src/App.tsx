@@ -13,13 +13,16 @@ import { TvContent } from './components/TvContent';
 import { PaymentWarningModal } from './components/PaymentWarningModal';
 import { CepGeral } from './components/CepGeral';
 import { SalesManagement } from './components/SalesManagement';
+import { NotificationPanel } from './components/NotificationPanel';
+import { SystemUpdateNotifier } from './components/SystemUpdateNotifier';
 import { 
   Home, Building2, Search, Smartphone, HelpCircle, Tv, LogOut, MapPin, 
-  ShoppingCart, Calculator, FileText, Users, Settings, Bell
+  ShoppingCart, Calculator, FileText, Users, Settings
 } from 'lucide-react';
 import { useSearch } from './contexts/SearchContext';
 import { LoginScreen } from './components/LoginScreen';
 import { useAuth } from './contexts/AuthContext';
+import { useNotifications } from './contexts/NotificationContext';
 
 function App() {
   const [selectedTerritory, setSelectedTerritory] = useState<Territory | null>(null);
@@ -28,7 +31,7 @@ function App() {
   const { getTopSearchedCities, incrementSearchCount } = useSearch();
   const [selectedCity, setSelectedCity] = useState<string>('');
   const { user, profile, signOut, loading } = useAuth();
-  const [notifications] = useState(3); // Simulando notificações
+  const { unreadCount } = useNotifications();
 
   const handleCitySelect = (city: string) => {
     incrementSearchCount(city);
@@ -166,6 +169,9 @@ function App() {
       {/* Modal de aviso de pagamento */}
       <PaymentWarningModal />
 
+      {/* Sistema de notificações de atualização */}
+      <SystemUpdateNotifier />
+
       {/* Background Effects */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"></div>
@@ -207,10 +213,10 @@ function App() {
                     }`}>
                       {profile.role}
                     </span>
-                    {notifications > 0 && (
+                    {unreadCount > 0 && (
                       <div className="flex items-center gap-1">
-                        <Bell size={12} className="text-blue-400" />
-                        <span className="text-xs text-blue-400">{notifications}</span>
+                        <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+                        <span className="text-xs text-blue-400">{unreadCount}</span>
                       </div>
                     )}
                   </div>
@@ -290,14 +296,8 @@ function App() {
             </div>
             
             <div className="flex items-center gap-4">
-              {notifications > 0 && (
-                <button className="relative p-3 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-all">
-                  <Bell size={20} className="text-gray-300" />
-                  <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-                    {notifications}
-                  </span>
-                </button>
-              )}
+              {/* Painel de Notificações */}
+              <NotificationPanel />
               
               <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/10">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
