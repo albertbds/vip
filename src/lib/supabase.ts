@@ -190,7 +190,7 @@ export const auth = {
         .from('user_profiles')
         .select('*')
         .eq('id', userId)
-        .single()
+        .maybeSingle()
       
       return { data, error }
     } catch (error) {
