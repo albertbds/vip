@@ -2,23 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, Plus, Filter, Download, Upload, Edit, Trash2, 
   User, FileText, Clock, CheckCircle, XCircle, AlertCircle,
-  Calendar, Phone, Mail, MapPin, Copy, Check
+  Calendar, Phone, Mail, MapPin, Copy, Check, Loader
 } from 'lucide-react';
-
-interface Sale {
-  id: string;
-  clientName: string;
-  contractNumber: string;
-  phone: string;
-  email: string;
-  address: string;
-  plan: string;
-  value: number;
-  status: 'instalada' | 'ag-instalacao' | 'reprovada';
-  createdAt: string;
-  installationDate?: string;
-  notes?: string;
-}
+import { useAuth } from '../../contexts/AuthContext';
+import { salesService, Sale, CreateSaleData } from '../../lib/sales';
 
 const statusConfig = {
   'instalada': {
@@ -39,61 +26,50 @@ const statusConfig = {
 };
 
 export function SalesManagement() {
-  const [sales, setSales] = useState<Sale[]>([
-    {
-      id: '1',
-      clientName: 'João Silva Santos',
-      contractNumber: 'CT-2025-001',
-      phone: '(85) 99999-9999',
-      email: 'joao.silva@email.com',
-      address: 'Rua das Flores, 123 - Aldeota, Fortaleza - CE',
-      plan: '600MB',
-      value: 99.99,
-      status: 'ag-instalacao',
-      createdAt: '2025-01-28',
-      installationDate: '2025-01-30',
-      notes: 'Cliente preferiu instalação pela manhã'
-    },
-    {
-      id: '2',
-      clientName: 'Maria Oliveira Costa',
-      contractNumber: 'CT-2025-002',
-      phone: '(85) 98888-8888',
-      email: 'maria.costa@email.com',
-      address: 'Av. Beira Mar, 456 - Meireles, Fortaleza - CE',
-      plan: '920MB',
-      value: 139.99,
-      status: 'instalada',
-      createdAt: '2025-01-27',
-      installationDate: '2025-01-28'
-    },
-    {
-      id: '3',
-      clientName: 'Pedro Almeida Lima',
-      contractNumber: 'CT-2025-003',
-      phone: '(85) 97777-7777',
-      email: 'pedro.lima@email.com',
-      address: 'Rua José Vilar, 789 - Cocó, Fortaleza - CE',
-      plan: '400MB',
-      value: 79.99,
-      status: 'reprovada',
-      createdAt: '2025-01-26',
-      notes: 'Área sem cobertura'
-    }
-  ]);
-
+  const { user } = useAuth();
+  const [sales, setSales] = useState<Sale[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Carregar vendas do usuário
+  useEffect(() => {
+    if (user) {
+      loadSales();
+    }
+  }, [user]);
+
+  const loadSales = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    setError(null);
+    
+    try {
+      const { data, error } = await salesService.getUserSales(user.id);
+      if (error) {
+        setError('Erro ao carregar vendas: ' + error.message);
+      } else {
+        setSales(data || []);
+      }
+    } catch (err) {
+      setError('Erro inesperado ao carregar vendas');
+      console.error('Erro ao carregar vendas:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredSales = sales.filter(sale => {
     const matchesSearch = 
-      sale.clientName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sale.contractNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sale.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      sale.contract_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
       sale.phone.includes(searchTerm) ||
-      sale.email.toLowerCase().includes(searchTerm.toLowerCase());
+      (sale.email && sale.email.toLowerCase().includes(searchTerm.toLowerCase()));
     
     const matchesStatus = statusFilter === 'all' || sale.status === statusFilter;
     
@@ -106,25 +82,91 @@ export function SalesManagement() {
     setTimeout(() => setCopied(null), 2000);
   };
 
-  const handleStatusChange = (saleId: string, newStatus: Sale['status']) => {
-    setSales(prev => prev.map(sale => 
-      sale.id === saleId 
-        ? { ...sale, status: newStatus }
-        : sale
-    ));
-  };
-
-  const handleDeleteSale = (saleId: string) => {
-    if (confirm('Tem certeza que deseja excluir esta venda?')) {
-      setSales(prev => prev.filter(sale => sale.id !== saleId));
+  const handleStatusChange = async (saleId: string, newStatus: Sale['status']) => {
+    try {
+      const { data, error } = await salesService.updateSale({
+        id: saleId,
+        status: newStatus
+      });
+      
+      if (error) {
+        setError('Erro ao atualizar status: ' + error.message);
+      } else {
+        setSales(prev => prev.map(sale => 
+          sale.id === saleId ? { ...sale, status: newStatus } : sale
+        ));
+      }
+    } catch (err) {
+      setError('Erro inesperado ao atualizar status');
+      console.error('Erro ao atualizar status:', err);
     }
   };
 
-  const generateContractNumber = () => {
-    const year = new Date().getFullYear();
-    const count = sales.length + 1;
-    return `CT-${year}-${count.toString().padStart(3, '0')}`;
+  const handleDeleteSale = async (saleId: string) => {
+    if (!confirm('Tem certeza que deseja excluir esta venda?')) return;
+    
+    try {
+      const { error } = await salesService.deleteSale(saleId);
+      if (error) {
+        setError('Erro ao excluir venda: ' + error.message);
+      } else {
+        setSales(prev => prev.filter(sale => sale.id !== saleId));
+      }
+    } catch (err) {
+      setError('Erro inesperado ao excluir venda');
+      console.error('Erro ao excluir venda:', err);
+    }
   };
+
+  const handleSaveSale = async (saleData: CreateSaleData) => {
+    if (!user) return;
+    
+    try {
+      if (editingSale) {
+        // Atualizar venda existente
+        const { data, error } = await salesService.updateSale({
+          id: editingSale.id,
+          ...saleData
+        });
+        
+        if (error) {
+          setError('Erro ao atualizar venda: ' + error.message);
+        } else {
+          setSales(prev => prev.map(sale => 
+            sale.id === editingSale.id ? data! : sale
+          ));
+          setEditingSale(null);
+        }
+      } else {
+        // Criar nova venda
+        const { data, error } = await salesService.createSale(user.id, {
+          ...saleData,
+          contract_number: saleData.contract_number || salesService.generateContractNumber()
+        });
+        
+        if (error) {
+          setError('Erro ao criar venda: ' + error.message);
+        } else {
+          setSales(prev => [data!, ...prev]);
+          setShowAddModal(false);
+        }
+      }
+    } catch (err) {
+      setError('Erro inesperado ao salvar venda');
+      console.error('Erro ao salvar venda:', err);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex items-center gap-3">
+          <Loader className="w-6 h-6 animate-spin text-blue-400" />
+          <span className="text-gray-300">Carregando vendas...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -136,7 +178,7 @@ export function SalesManagement() {
               Gerenciamento de Vendas
             </h2>
             <p className="text-gray-300 text-lg">
-              Controle completo das vendas realizadas e status de instalação
+              Controle completo das suas vendas realizadas e status de instalação
             </p>
           </div>
           <button
@@ -148,6 +190,20 @@ export function SalesManagement() {
           </button>
         </div>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 flex items-center gap-3">
+          <AlertCircle className="text-red-400" size={20} />
+          <span className="text-red-100">{error}</span>
+          <button
+            onClick={() => setError(null)}
+            className="ml-auto text-red-400 hover:text-red-300"
+          >
+            <XCircle size={16} />
+          </button>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
@@ -232,7 +288,10 @@ export function SalesManagement() {
               <option value="reprovada">Reprovada</option>
             </select>
             
-            <button className="px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-gray-300 hover:bg-white/10 transition-all">
+            <button 
+              onClick={loadSales}
+              className="px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-gray-300 hover:bg-white/10 transition-all"
+            >
               <Download size={20} />
             </button>
           </div>
@@ -265,11 +324,11 @@ export function SalesManagement() {
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
                           <span className="text-white font-semibold text-sm">
-                            {sale.clientName.charAt(0)}
+                            {sale.client_name.charAt(0)}
                           </span>
                         </div>
                         <div>
-                          <p className="text-white font-medium">{sale.clientName}</p>
+                          <p className="text-white font-medium">{sale.client_name}</p>
                           <div className="flex items-center gap-2 text-xs text-gray-400">
                             <Phone size={12} />
                             <span>{sale.phone}</span>
@@ -280,9 +339,9 @@ export function SalesManagement() {
                     
                     <td className="p-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-white font-mono">{sale.contractNumber}</span>
+                        <span className="text-white font-mono">{sale.contract_number}</span>
                         <button
-                          onClick={() => handleCopy(sale.contractNumber, sale.id)}
+                          onClick={() => handleCopy(sale.contract_number, sale.id)}
                           className="p-1 hover:bg-white/10 rounded transition-all"
                         >
                           {copied === sale.id ? (
@@ -321,11 +380,11 @@ export function SalesManagement() {
                     <td className="p-4">
                       <div className="text-sm">
                         <p className="text-white">
-                          {new Date(sale.createdAt).toLocaleDateString('pt-BR')}
+                          {new Date(sale.created_at).toLocaleDateString('pt-BR')}
                         </p>
-                        {sale.installationDate && (
+                        {sale.installation_date && (
                           <p className="text-gray-400 text-xs">
-                            Inst: {new Date(sale.installationDate).toLocaleDateString('pt-BR')}
+                            Inst: {new Date(sale.installation_date).toLocaleDateString('pt-BR')}
                           </p>
                         )}
                       </div>
@@ -372,23 +431,7 @@ export function SalesManagement() {
             setShowAddModal(false);
             setEditingSale(null);
           }}
-          onSave={(saleData) => {
-            if (editingSale) {
-              setSales(prev => prev.map(sale => 
-                sale.id === editingSale.id ? { ...sale, ...saleData } : sale
-              ));
-            } else {
-              const newSale: Sale = {
-                id: Date.now().toString(),
-                contractNumber: generateContractNumber(),
-                createdAt: new Date().toISOString().split('T')[0],
-                ...saleData
-              };
-              setSales(prev => [newSale, ...prev]);
-            }
-            setShowAddModal(false);
-            setEditingSale(null);
-          }}
+          onSave={handleSaveSale}
         />
       )}
     </div>
@@ -400,19 +443,20 @@ interface SaleModalProps {
   sale?: Sale | null;
   isOpen: boolean;
   onClose: () => void;
-  onSave: (saleData: Partial<Sale>) => void;
+  onSave: (saleData: CreateSaleData) => void;
 }
 
 function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
-  const [formData, setFormData] = useState({
-    clientName: sale?.clientName || '',
+  const [formData, setFormData] = useState<CreateSaleData>({
+    client_name: sale?.client_name || '',
+    contract_number: sale?.contract_number || '',
     phone: sale?.phone || '',
     email: sale?.email || '',
     address: sale?.address || '',
     plan: sale?.plan || '600MB',
     value: sale?.value || 99.99,
-    status: sale?.status || 'ag-instalacao' as Sale['status'],
-    installationDate: sale?.installationDate || '',
+    status: sale?.status || 'ag-instalacao',
+    installation_date: sale?.installation_date || '',
     notes: sale?.notes || ''
   });
 
@@ -441,10 +485,23 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
               <input
                 type="text"
                 required
-                value={formData.clientName}
-                onChange={(e) => setFormData({...formData, clientName: e.target.value})}
+                value={formData.client_name}
+                onChange={(e) => setFormData({...formData, client_name: e.target.value})}
                 className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="Nome completo do cliente"
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Número do Contrato
+              </label>
+              <input
+                type="text"
+                value={formData.contract_number}
+                onChange={(e) => setFormData({...formData, contract_number: e.target.value})}
+                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="Será gerado automaticamente se vazio"
               />
             </div>
             
@@ -521,6 +578,18 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
                 <option value="reprovada">Reprovada</option>
               </select>
             </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-300 mb-2">
+                Data de Instalação
+              </label>
+              <input
+                type="date"
+                value={formData.installation_date}
+                onChange={(e) => setFormData({...formData, installation_date: e.target.value})}
+                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              />
+            </div>
           </div>
           
           <div>
@@ -534,18 +603,6 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
               onChange={(e) => setFormData({...formData, address: e.target.value})}
               className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="Rua, número, bairro, cidade - estado"
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
-              Data de Instalação
-            </label>
-            <input
-              type="date"
-              value={formData.installationDate}
-              onChange={(e) => setFormData({...formData, installationDate: e.target.value})}
-              className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
             />
           </div>
           
