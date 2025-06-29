@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
 import { auth, UserProfile } from '../lib/supabase'
 import { User } from '@supabase/supabase-js'
+import { salesService } from '../lib/sales'
 
 interface AuthContextType {
   user: User | null
@@ -23,8 +24,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let mounted = true
 
     // Função para carregar perfil do usuário
-    async function loadUserProfile(userId: string) {
+    async function loadUserProfile(userId: string, userEmail?: string) {
       try {
+        // Garantir que o perfil existe
+        await salesService.ensureUserProfile(userId, userEmail)
+        
         const { data: profileData, error: profileError } = await auth.getUserProfile(userId)
         if (!profileError && profileData && mounted) {
           setProfile(profileData)
@@ -32,8 +36,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Se não encontrar perfil, criar um básico
           const basicProfile: UserProfile = {
             id: userId,
-            email: user?.email || '',
-            full_name: user?.user_metadata?.full_name || user?.email || '',
+            email: user?.email || userEmail || '',
+            full_name: user?.user_metadata?.full_name || user?.email || userEmail || '',
             role: 'user',
             is_active: true,
             created_at: new Date().toISOString(),
@@ -47,8 +51,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Criar perfil básico em caso de erro
           const basicProfile: UserProfile = {
             id: userId,
-            email: user?.email || '',
-            full_name: user?.user_metadata?.full_name || user?.email || '',
+            email: user?.email || userEmail || '',
+            full_name: user?.user_metadata?.full_name || user?.email || userEmail || '',
             role: 'user',
             is_active: true,
             created_at: new Date().toISOString(),
@@ -67,7 +71,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (mounted) {
           if (currentUser && !error) {
             setUser(currentUser)
-            await loadUserProfile(currentUser.id)
+            await loadUserProfile(currentUser.id, currentUser.email)
           } else {
             // Se houver erro ou não houver usuário, limpar estado
             setUser(null)
@@ -105,7 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       try {
         if (session?.user) {
           setUser(session.user)
-          await loadUserProfile(session.user.id)
+          await loadUserProfile(session.user.id, session.user.email)
         } else {
           setUser(null)
           setProfile(null)
@@ -140,6 +144,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true)
     try {
       const { data, error } = await auth.signIn(email, password)
+      
+      // Se login bem-sucedido, garantir que o perfil existe
+      if (data?.user && !error) {
+        await salesService.ensureUserProfile(data.user.id, data.user.email)
+      }
+      
       return { error }
     } catch (error) {
       return { error }
@@ -152,6 +162,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setLoading(true)
     try {
       const { data, error } = await auth.signUp(email, password, fullName)
+      
+      // Se registro bem-sucedido, garantir que o perfil existe
+      if (data?.user && !error) {
+        await salesService.ensureUserProfile(data.user.id, data.user.email)
+      }
+      
       return { error }
     } catch (error) {
       return { error }

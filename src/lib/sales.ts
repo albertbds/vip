@@ -36,6 +36,70 @@ export interface UpdateSaleData extends Partial<CreateSaleData> {
 
 // Funções para gerenciar vendas
 export const salesService = {
+  // Garantir que o perfil do usuário existe
+  async ensureUserProfile(userId: string, userEmail?: string): Promise<{ success: boolean, error: any }> {
+    if (!supabase) {
+      return { success: true, error: null }
+    }
+
+    try {
+      // Primeiro verificar se o perfil já existe
+      const { data: existingProfile, error: checkError } = await supabase
+        .from('user_profiles')
+        .select('id')
+        .eq('id', userId)
+        .maybeSingle()
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Erro ao verificar perfil existente:', checkError)
+        return { success: false, error: checkError }
+      }
+
+      // Se o perfil já existe, retornar sucesso
+      if (existingProfile) {
+        return { success: true, error: null }
+      }
+
+      // Se não existe, tentar criar
+      console.log('Perfil não encontrado, criando para usuário:', userId)
+      
+      // Buscar dados do usuário no auth.users se necessário
+      let email = userEmail
+      if (!email) {
+        const { data: { user }, error: userError } = await supabase.auth.getUser()
+        if (user && user.id === userId) {
+          email = user.email
+        }
+      }
+
+      // Criar perfil básico
+      const profileData = {
+        id: userId,
+        email: email || 'user@example.com',
+        full_name: email ? email.split('@')[0] : 'Usuário',
+        role: 'user',
+        is_active: true
+      }
+
+      const { data: newProfile, error: createError } = await supabase
+        .from('user_profiles')
+        .insert([profileData])
+        .select()
+        .single()
+
+      if (createError) {
+        console.error('Erro ao criar perfil:', createError)
+        return { success: false, error: createError }
+      }
+
+      console.log('Perfil criado com sucesso:', newProfile)
+      return { success: true, error: null }
+    } catch (error) {
+      console.error('Erro inesperado ao garantir perfil:', error)
+      return { success: false, error }
+    }
+  },
+
   // Buscar todas as vendas do usuário atual
   async getUserSales(userId: string): Promise<{ data: Sale[] | null, error: any }> {
     if (!supabase) {
@@ -62,6 +126,9 @@ export const salesService = {
     }
 
     try {
+      // Garantir que o perfil existe antes de buscar vendas
+      await this.ensureUserProfile(userId)
+
       const { data, error } = await supabase
         .from('sales')
         .select('*')
@@ -96,6 +163,20 @@ export const salesService = {
     }
 
     try {
+      // Garantir que o perfil do usuário existe antes de criar a venda
+      const { success: profileSuccess, error: profileError } = await this.ensureUserProfile(userId)
+      
+      if (!profileSuccess) {
+        console.error('Falha ao garantir perfil do usuário:', profileError)
+        return { 
+          data: null, 
+          error: { 
+            message: 'Erro ao verificar perfil do usuário. Tente fazer login novamente.',
+            details: profileError 
+          }
+        }
+      }
+
       // Garantir que o contract_number seja gerado se não fornecido
       const contractNumber = saleData.contract_number || this.generateContractNumber()
       
@@ -123,6 +204,18 @@ export const salesService = {
 
       if (error) {
         console.error('Erro do Supabase ao criar venda:', error)
+        
+        // Tratamento específico para erro de chave estrangeira
+        if (error.code === '23503' && error.message.includes('sales_user_id_fkey')) {
+          return { 
+            data: null, 
+            error: { 
+              message: 'Erro de perfil de usuário. Tente fazer logout e login novamente.',
+              details: error 
+            }
+          }
+        }
+        
         return { data: null, error }
       }
 
@@ -256,11 +349,14 @@ export const salesService = {
     }
 
     try {
+      // Garantir que o perfil existe
+      await this.ensureUserProfile(userId)
+
       const { data, error } = await supabase
         .from('user_profiles')
         .select('id, is_active')
         .eq('id', userId)
-        .single()
+        .maybeSingle()
 
       if (error) {
         console.error('Erro ao verificar acesso do usuário:', error)
