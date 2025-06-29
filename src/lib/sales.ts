@@ -19,7 +19,7 @@ export interface Sale {
 
 export interface CreateSaleData {
   client_name: string
-  contract_number: string
+  contract_number?: string
   phone: string
   email?: string
   address: string
@@ -68,7 +68,12 @@ export const salesService = {
         .eq('user_id', userId)
         .order('created_at', { ascending: false })
 
-      return { data, error }
+      if (error) {
+        console.error('Erro do Supabase ao buscar vendas:', error)
+        return { data: null, error }
+      }
+
+      return { data: data || [], error: null }
     } catch (error) {
       console.error('Erro ao buscar vendas:', error)
       return { data: null, error }
@@ -82,6 +87,7 @@ export const salesService = {
       const newSale: Sale = {
         id: Date.now().toString(),
         user_id: userId,
+        contract_number: saleData.contract_number || this.generateContractNumber(),
         ...saleData,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
@@ -90,13 +96,38 @@ export const salesService = {
     }
 
     try {
+      // Garantir que o contract_number seja gerado se não fornecido
+      const contractNumber = saleData.contract_number || this.generateContractNumber()
+      
+      const insertData = {
+        user_id: userId,
+        client_name: saleData.client_name,
+        contract_number: contractNumber,
+        phone: saleData.phone,
+        email: saleData.email || null,
+        address: saleData.address,
+        plan: saleData.plan,
+        value: saleData.value,
+        status: saleData.status,
+        installation_date: saleData.installation_date || null,
+        notes: saleData.notes || null
+      }
+
+      console.log('Dados para inserção:', insertData)
+
       const { data, error } = await supabase
         .from('sales')
-        .insert([{ ...saleData, user_id: userId }])
+        .insert([insertData])
         .select()
         .single()
 
-      return { data, error }
+      if (error) {
+        console.error('Erro do Supabase ao criar venda:', error)
+        return { data: null, error }
+      }
+
+      console.log('Venda criada com sucesso:', data)
+      return { data, error: null }
     } catch (error) {
       console.error('Erro ao criar venda:', error)
       return { data: null, error }
@@ -112,14 +143,27 @@ export const salesService = {
 
     try {
       const { id, ...updateData } = saleData
+      
+      // Remover campos undefined
+      const cleanUpdateData = Object.fromEntries(
+        Object.entries(updateData).filter(([_, value]) => value !== undefined)
+      )
+
+      console.log('Dados para atualização:', cleanUpdateData)
+
       const { data, error } = await supabase
         .from('sales')
-        .update(updateData)
+        .update(cleanUpdateData)
         .eq('id', id)
         .select()
         .single()
 
-      return { data, error }
+      if (error) {
+        console.error('Erro do Supabase ao atualizar venda:', error)
+        return { data: null, error }
+      }
+
+      return { data, error: null }
     } catch (error) {
       console.error('Erro ao atualizar venda:', error)
       return { data: null, error }
@@ -139,6 +183,10 @@ export const salesService = {
         .delete()
         .eq('id', saleId)
 
+      if (error) {
+        console.error('Erro do Supabase ao deletar venda:', error)
+      }
+
       return { error }
     } catch (error) {
       console.error('Erro ao deletar venda:', error)
@@ -150,7 +198,8 @@ export const salesService = {
   generateContractNumber(): string {
     const year = new Date().getFullYear()
     const timestamp = Date.now().toString().slice(-6)
-    return `CT-${year}-${timestamp}`
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0')
+    return `CT-${year}-${timestamp}${random}`
   },
 
   // Buscar vendas por status
@@ -167,7 +216,7 @@ export const salesService = {
         .eq('status', status)
         .order('created_at', { ascending: false })
 
-      return { data, error }
+      return { data: data || [], error }
     } catch (error) {
       console.error('Erro ao buscar vendas por status:', error)
       return { data: null, error }
@@ -193,10 +242,35 @@ export const salesService = {
         .lte('created_at', endDate)
         .order('created_at', { ascending: false })
 
-      return { data, error }
+      return { data: data || [], error }
     } catch (error) {
       console.error('Erro ao buscar vendas por período:', error)
       return { data: null, error }
+    }
+  },
+
+  // Verificar se o usuário tem acesso ao sistema de vendas
+  async checkUserAccess(userId: string): Promise<{ hasAccess: boolean, error: any }> {
+    if (!supabase) {
+      return { hasAccess: true, error: null }
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('id, is_active')
+        .eq('id', userId)
+        .single()
+
+      if (error) {
+        console.error('Erro ao verificar acesso do usuário:', error)
+        return { hasAccess: false, error }
+      }
+
+      return { hasAccess: data?.is_active || false, error: null }
+    } catch (error) {
+      console.error('Erro ao verificar acesso:', error)
+      return { hasAccess: false, error }
     }
   }
 }

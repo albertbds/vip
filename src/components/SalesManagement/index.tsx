@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Search, Plus, Filter, Download, Upload, Edit, Trash2, 
   User, FileText, Clock, CheckCircle, XCircle, AlertCircle,
-  Calendar, Phone, Mail, MapPin, Copy, Check, Loader
+  Calendar, Phone, Mail, MapPin, Copy, Check, Loader, RefreshCw
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { salesService, Sale, CreateSaleData } from '../../lib/sales';
@@ -35,6 +35,7 @@ export function SalesManagement() {
   const [editingSale, setEditingSale] = useState<Sale | null>(null);
   const [copied, setCopied] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   // Carregar vendas do usuário
   useEffect(() => {
@@ -50,15 +51,23 @@ export function SalesManagement() {
     setError(null);
     
     try {
+      // Primeiro verificar se o usuário tem acesso
+      const { hasAccess, error: accessError } = await salesService.checkUserAccess(user.id);
+      
+      if (accessError) {
+        console.warn('Erro ao verificar acesso, continuando...', accessError);
+      }
+
       const { data, error } = await salesService.getUserSales(user.id);
       if (error) {
-        setError('Erro ao carregar vendas: ' + error.message);
+        console.error('Erro ao carregar vendas:', error);
+        setError('Erro ao carregar vendas. Verifique sua conexão e tente novamente.');
       } else {
         setSales(data || []);
       }
     } catch (err) {
+      console.error('Erro inesperado ao carregar vendas:', err);
       setError('Erro inesperado ao carregar vendas');
-      console.error('Erro ao carregar vendas:', err);
     } finally {
       setLoading(false);
     }
@@ -77,9 +86,13 @@ export function SalesManagement() {
   });
 
   const handleCopy = async (text: string, id: string) => {
-    await navigator.clipboard.writeText(text);
-    setCopied(id);
-    setTimeout(() => setCopied(null), 2000);
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopied(id);
+      setTimeout(() => setCopied(null), 2000);
+    } catch (err) {
+      console.error('Erro ao copiar:', err);
+    }
   };
 
   const handleStatusChange = async (saleId: string, newStatus: Sale['status']) => {
@@ -90,15 +103,16 @@ export function SalesManagement() {
       });
       
       if (error) {
-        setError('Erro ao atualizar status: ' + error.message);
+        console.error('Erro ao atualizar status:', error);
+        setError('Erro ao atualizar status: ' + (error.message || 'Erro desconhecido'));
       } else {
         setSales(prev => prev.map(sale => 
           sale.id === saleId ? { ...sale, status: newStatus } : sale
         ));
       }
     } catch (err) {
+      console.error('Erro inesperado ao atualizar status:', err);
       setError('Erro inesperado ao atualizar status');
-      console.error('Erro ao atualizar status:', err);
     }
   };
 
@@ -108,18 +122,25 @@ export function SalesManagement() {
     try {
       const { error } = await salesService.deleteSale(saleId);
       if (error) {
-        setError('Erro ao excluir venda: ' + error.message);
+        console.error('Erro ao excluir venda:', error);
+        setError('Erro ao excluir venda: ' + (error.message || 'Erro desconhecido'));
       } else {
         setSales(prev => prev.filter(sale => sale.id !== saleId));
       }
     } catch (err) {
+      console.error('Erro inesperado ao excluir venda:', err);
       setError('Erro inesperado ao excluir venda');
-      console.error('Erro ao excluir venda:', err);
     }
   };
 
   const handleSaveSale = async (saleData: CreateSaleData) => {
-    if (!user) return;
+    if (!user) {
+      setError('Usuário não autenticado');
+      return;
+    }
+    
+    setSaving(true);
+    setError(null);
     
     try {
       if (editingSale) {
@@ -130,30 +151,31 @@ export function SalesManagement() {
         });
         
         if (error) {
-          setError('Erro ao atualizar venda: ' + error.message);
-        } else {
+          console.error('Erro ao atualizar venda:', error);
+          setError('Erro ao atualizar venda: ' + (error.message || 'Erro desconhecido'));
+        } else if (data) {
           setSales(prev => prev.map(sale => 
-            sale.id === editingSale.id ? data! : sale
+            sale.id === editingSale.id ? data : sale
           ));
           setEditingSale(null);
         }
       } else {
         // Criar nova venda
-        const { data, error } = await salesService.createSale(user.id, {
-          ...saleData,
-          contract_number: saleData.contract_number || salesService.generateContractNumber()
-        });
+        const { data, error } = await salesService.createSale(user.id, saleData);
         
         if (error) {
-          setError('Erro ao criar venda: ' + error.message);
-        } else {
-          setSales(prev => [data!, ...prev]);
+          console.error('Erro ao criar venda:', error);
+          setError('Erro ao criar venda: ' + (error.message || 'Erro desconhecido'));
+        } else if (data) {
+          setSales(prev => [data, ...prev]);
           setShowAddModal(false);
         }
       }
     } catch (err) {
+      console.error('Erro inesperado ao salvar venda:', err);
       setError('Erro inesperado ao salvar venda');
-      console.error('Erro ao salvar venda:', err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -183,7 +205,8 @@ export function SalesManagement() {
           </div>
           <button
             onClick={() => setShowAddModal(true)}
-            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg hover:from-orange-700 hover:to-red-700 transition-all transform hover:scale-105"
+            disabled={saving}
+            className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg hover:from-orange-700 hover:to-red-700 transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Plus size={20} />
             Nova Venda
@@ -194,11 +217,11 @@ export function SalesManagement() {
       {/* Error Message */}
       {error && (
         <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 flex items-center gap-3">
-          <AlertCircle className="text-red-400" size={20} />
-          <span className="text-red-100">{error}</span>
+          <AlertCircle className="text-red-400 flex-shrink-0" size={20} />
+          <span className="text-red-100 flex-1">{error}</span>
           <button
             onClick={() => setError(null)}
-            className="ml-auto text-red-400 hover:text-red-300"
+            className="text-red-400 hover:text-red-300"
           >
             <XCircle size={16} />
           </button>
@@ -290,9 +313,11 @@ export function SalesManagement() {
             
             <button 
               onClick={loadSales}
-              className="px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-gray-300 hover:bg-white/10 transition-all"
+              disabled={loading}
+              className="px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-gray-300 hover:bg-white/10 transition-all disabled:opacity-50"
+              title="Recarregar vendas"
             >
-              <Download size={20} />
+              <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
             </button>
           </div>
         </div>
@@ -413,11 +438,16 @@ export function SalesManagement() {
           </table>
         </div>
         
-        {filteredSales.length === 0 && (
+        {filteredSales.length === 0 && !loading && (
           <div className="text-center py-12">
             <Search className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-400 mb-2">Nenhuma venda encontrada</h3>
-            <p className="text-gray-500">Tente ajustar sua busca ou adicione uma nova venda</p>
+            <p className="text-gray-500">
+              {searchTerm || statusFilter !== 'all' 
+                ? 'Tente ajustar sua busca ou filtros' 
+                : 'Adicione sua primeira venda clicando no botão "Nova Venda"'
+              }
+            </p>
           </div>
         )}
       </div>
@@ -432,6 +462,7 @@ export function SalesManagement() {
             setEditingSale(null);
           }}
           onSave={handleSaveSale}
+          saving={saving}
         />
       )}
     </div>
@@ -444,9 +475,10 @@ interface SaleModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (saleData: CreateSaleData) => void;
+  saving?: boolean;
 }
 
-function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
+function SaleModal({ sale, isOpen, onClose, onSave, saving = false }: SaleModalProps) {
   const [formData, setFormData] = useState<CreateSaleData>({
     client_name: sale?.client_name || '',
     contract_number: sale?.contract_number || '',
@@ -489,6 +521,7 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
                 onChange={(e) => setFormData({...formData, client_name: e.target.value})}
                 className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="Nome completo do cliente"
+                disabled={saving}
               />
             </div>
             
@@ -502,6 +535,7 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
                 onChange={(e) => setFormData({...formData, contract_number: e.target.value})}
                 className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="Será gerado automaticamente se vazio"
+                disabled={saving}
               />
             </div>
             
@@ -516,6 +550,7 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
                 className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="(85) 99999-9999"
+                disabled={saving}
               />
             </div>
             
@@ -529,6 +564,7 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
                 onChange={(e) => setFormData({...formData, email: e.target.value})}
                 className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
                 placeholder="cliente@email.com"
+                disabled={saving}
               />
             </div>
             
@@ -541,6 +577,7 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
                 value={formData.plan}
                 onChange={(e) => setFormData({...formData, plan: e.target.value})}
                 className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                disabled={saving}
               >
                 <option value="400MB">400MB - R$ 79,99</option>
                 <option value="600MB">600MB - R$ 99,99</option>
@@ -560,6 +597,7 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
                 value={formData.value}
                 onChange={(e) => setFormData({...formData, value: parseFloat(e.target.value)})}
                 className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                disabled={saving}
               />
             </div>
             
@@ -572,6 +610,7 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
                 value={formData.status}
                 onChange={(e) => setFormData({...formData, status: e.target.value as Sale['status']})}
                 className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                disabled={saving}
               >
                 <option value="ag-instalacao">Ag. Instalação</option>
                 <option value="instalada">Instalada</option>
@@ -588,6 +627,7 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
                 value={formData.installation_date}
                 onChange={(e) => setFormData({...formData, installation_date: e.target.value})}
                 className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                disabled={saving}
               />
             </div>
           </div>
@@ -603,6 +643,7 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
               onChange={(e) => setFormData({...formData, address: e.target.value})}
               className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="Rua, número, bairro, cidade - estado"
+              disabled={saving}
             />
           </div>
           
@@ -616,6 +657,7 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
               rows={3}
               className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
               placeholder="Observações adicionais sobre a venda..."
+              disabled={saving}
             />
           </div>
           
@@ -623,15 +665,26 @@ function SaleModal({ sale, isOpen, onClose, onSave }: SaleModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-6 py-3 bg-white/5 border border-white/10 text-gray-300 rounded-lg hover:bg-white/10 transition-all"
+              disabled={saving}
+              className="flex-1 px-6 py-3 bg-white/5 border border-white/10 text-gray-300 rounded-lg hover:bg-white/10 transition-all disabled:opacity-50"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg hover:from-orange-700 hover:to-red-700 transition-all"
+              disabled={saving}
+              className="flex-1 px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg hover:from-orange-700 hover:to-red-700 transition-all disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              {sale ? 'Atualizar' : 'Salvar'} Venda
+              {saving ? (
+                <>
+                  <Loader className="w-4 h-4 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  {sale ? 'Atualizar' : 'Salvar'} Venda
+                </>
+              )}
             </button>
           </div>
         </form>
