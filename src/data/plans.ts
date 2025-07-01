@@ -36,8 +36,8 @@ const t1t9Plans: PlanGroup = {
   }
 };
 
-// T10-T14 Plans
-const t10t14Plans: PlanGroup = {
+// T10-T15 Plans (incluindo Maranhão agora com os mesmos preços de Fortaleza)
+const t10t15Plans: PlanGroup = {
   regular: [
     { speed: "920MB", price: "139,99", priceAfter: "159,99", description: "Wifi 6 incluso" },
     { speed: "800MB", price: "109,99", priceAfter: "129,99", description: "Wifi 6 incluso" },
@@ -55,27 +55,6 @@ const t10t14Plans: PlanGroup = {
     price: "99,99",
     priceAfter: "119,99",
     description: "MAX"
-  }
-};
-
-// T15 Plans
-const t15Plans: PlanGroup = {
-  regular: [
-    { speed: "920MB", price: "139,99", priceAfter: "159,99", description: "Wifi 6 incluso" },
-    { speed: "800MB", price: "109,99", priceAfter: "129,99", description: "Wifi 6 incluso" },
-    { speed: "600MB", price: "89,99", priceAfter: "109,99", description: "Wifi 6 incluso" }
-  ],
-  globoplay: {
-    speed: "600MB",
-    price: "99,99",
-    priceAfter: "119,99",
-    description: "Wifi 6 incluso"
-  },
-  max: {
-    speed: "600MB",
-    price: "119,99",
-    priceAfter: "139,99",
-    description: "Wifi 6 incluso"
   }
 };
 
@@ -118,11 +97,17 @@ export const tvParamountMaxPlan = {
 
 // Helper function to get plans based on territory
 export function getPlansForTerritory(territoryId: string): PlanGroup {
-  if (territoryId === 'T15') {
-    return t15Plans;
-  }
   const t1t9Territories = ['T1', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'T8', 'T9'];
-  return t1t9Territories.includes(territoryId) ? t1t9Plans : t10t14Plans;
+  const t10t15Territories = ['T10', 'T11', 'T12', 'T13', 'T14_1', 'T14_2', 'T15']; // Incluindo T15 (Maranhão)
+  
+  if (t1t9Territories.includes(territoryId)) {
+    return t1t9Plans;
+  } else if (t10t15Territories.includes(territoryId)) {
+    return t10t15Plans;
+  }
+  
+  // Fallback para territórios não mapeados
+  return t10t15Plans;
 }
 
 // Helper function to get TV plans
