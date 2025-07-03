@@ -39,6 +39,17 @@ export const phoneCities = new Set([
   'GUARAPARI', 'ITAOCARA', 'MACUCO', 'MURIAÉ', 'VILA VELHA', 'VITÓRIA'
 ]);
 
+// Maranhão cities (T15) - these cities should NOT show TV/phone services
+const maranhaoT15Cities = new Set([
+  'AÇAILÂNDIA', 'ALTO ALEGRE DO PINDARÉ', 'ARARI', 'BACABAL', 'BALSAS',
+  'BARRA DO CORDA', 'BOM JESUS DAS SELVAS', 'BURITICUPU', 'CAJARI', 'CODÓ',
+  'ESTREITO', 'GRAJAÚ', 'IMPERATRIZ', 'MATINHA', 'MATÕES',
+  'OLINDA NOVA DO MARANHÃO', 'PAÇO DO LUMIAR', 'PARNARAMA', 'PENALVA',
+  'PINDARÉ-MIRIM', 'PRESIDENTE DUTRA', 'SANTA INÊS', 'SANTA LUZIA',
+  'SÃO JOSÉ DE RIBAMAR', 'SÃO LUÍS', 'SÃO MATEUS DO MARANHÃO', 'TIMON',
+  'VIANA', 'VITÓRIA DO MEARIM', 'ZÉ DOCA'
+]);
+
 const createTVPlans = (city: string) => {
   // Special pricing for specific cities
   const isSpecialPricing = ['ITAÚ DE MINAS', 'SÃO JOÃO BATISTA DO GLÓRIA'].includes(city);
@@ -158,10 +169,18 @@ export function findTVTerritoryByCity(city: string): TVTerritory | undefined {
 }
 
 export function isTVAvailable(city: string): boolean {
+  // Maranhão cities (T15) should NOT have TV service
+  if (maranhaoT15Cities.has(city.toUpperCase())) {
+    return false;
+  }
   return tvCities.has(city.toUpperCase());
 }
 
 export function isPhoneAvailable(city: string): boolean {
+  // Maranhão cities (T15) should NOT have phone service
+  if (maranhaoT15Cities.has(city.toUpperCase())) {
+    return false;
+  }
   return phoneCities.has(city.toUpperCase());
 }
 
