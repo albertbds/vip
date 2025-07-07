@@ -77,8 +77,7 @@ export function SalesManagement() {
     const matchesSearch = 
       sale.client_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       sale.contract_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      sale.phone.includes(searchTerm) ||
-      (sale.email && sale.email.toLowerCase().includes(searchTerm.toLowerCase()));
+      sale.phone.includes(searchTerm);
     
     const matchesStatus = statusFilter === 'all' || sale.status === statusFilter;
     
@@ -575,8 +574,6 @@ function SaleModal({ sale, isOpen, onClose, onSave, saving = false }: SaleModalP
     client_name: sale?.client_name || '',
     contract_number: sale?.contract_number || '',
     phone: sale?.phone || '',
-    email: sale?.email || '',
-    address: sale?.address || '',
     plan: sale?.plan || '600MB',
     value: sale?.value || 99.99,
     status: sale?.status || 'ag-instalacao',
@@ -584,9 +581,48 @@ function SaleModal({ sale, isOpen, onClose, onSave, saving = false }: SaleModalP
     notes: sale?.notes || ''
   });
 
+  // Carregar dados salvos do localStorage quando o modal abrir
+  useEffect(() => {
+    if (isOpen && !sale) {
+      const savedData = localStorage.getItem('saleFormData');
+      if (savedData) {
+        try {
+          const parsedData = JSON.parse(savedData);
+          setFormData(prev => ({ ...prev, ...parsedData }));
+        } catch (error) {
+          console.error('Erro ao carregar dados salvos:', error);
+        }
+      }
+    }
+  }, [isOpen, sale]);
+
+  // Salvar dados no localStorage sempre que o formulário mudar
+  useEffect(() => {
+    if (isOpen && !sale) {
+      localStorage.setItem('saleFormData', JSON.stringify(formData));
+    }
+  }, [formData, isOpen, sale]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     onSave(formData);
+    
+    // Limpar dados salvos após salvar com sucesso
+    if (!sale) {
+      localStorage.removeItem('saleFormData');
+    }
+  };
+
+  const handleClose = () => {
+    // Não limpar dados salvos ao fechar, apenas ao cancelar explicitamente
+    onClose();
+  };
+
+  const handleCancel = () => {
+    if (!sale) {
+      localStorage.removeItem('saleFormData');
+    }
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -642,20 +678,6 @@ function SaleModal({ sale, isOpen, onClose, onSave, saving = false }: SaleModalP
                 onChange={(e) => setFormData({...formData, phone: e.target.value})}
                 className="form-control"
                 placeholder="(85) 99999-9999"
-                disabled={saving}
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="form-control"
-                placeholder="cliente@email.com"
                 disabled={saving}
               />
             </div>
@@ -726,21 +748,6 @@ function SaleModal({ sale, isOpen, onClose, onSave, saving = false }: SaleModalP
           
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              Endereço Completo *
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.address}
-              onChange={(e) => setFormData({...formData, address: e.target.value})}
-              className="form-control"
-              placeholder="Rua, número, bairro, cidade - estado"
-              disabled={saving}
-            />
-          </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
               Observações
             </label>
             <textarea
@@ -756,7 +763,7 @@ function SaleModal({ sale, isOpen, onClose, onSave, saving = false }: SaleModalP
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <button
               type="button"
-              onClick={onClose}
+              onClick={handleCancel}
               disabled={saving}
               className="flex-1 px-6 py-3 bg-white/5 border border-white/10 text-gray-300 rounded-lg hover:bg-white/10 transition-all disabled:opacity-50 touch-target"
             >

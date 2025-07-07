@@ -21,8 +21,6 @@ export interface CreateSaleData {
   client_name: string
   contract_number?: string
   phone: string
-  email?: string
-  address: string
   plan: string
   value: number
   status: 'ag-instalacao' | 'instalada' | 'reprovada'
@@ -185,8 +183,6 @@ export const salesService = {
         client_name: saleData.client_name,
         contract_number: contractNumber,
         phone: saleData.phone,
-        email: saleData.email || null,
-        address: saleData.address,
         plan: saleData.plan,
         value: saleData.value,
         status: saleData.status,
