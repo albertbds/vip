@@ -43,6 +43,7 @@ const t10t15Plans: PlanGroup = {
     { speed: "800MB", price: "109,99", priceAfter: "129,99", description: "Wifi 6 incluso" },
     { speed: "600MB", price: "89,99", priceAfter: "109,99", description: "Wifi 6 incluso" },
     { speed: "400MB", price: "69,99", priceAfter: "89,99" }
+    { speed: "400MB", price: "69,99", priceAfter: "89,99" }
   ],
   paramount: {
     speed: "400MB",
