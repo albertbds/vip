@@ -14,6 +14,29 @@ export function LoginScreen() {
   
   const { signIn, signUp, loading } = useAuth();
 
+  // Limpar qualquer sessão existente ao carregar a tela de login
+  useEffect(() => {
+    const clearExistingSession = () => {
+      // Limpar localStorage
+      const keys = Object.keys(localStorage)
+      keys.forEach(key => {
+        if (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth')) {
+          localStorage.removeItem(key)
+        }
+      })
+      
+      // Limpar sessionStorage
+      const sessionKeys = Object.keys(sessionStorage)
+      sessionKeys.forEach(key => {
+        if (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth')) {
+          sessionStorage.removeItem(key)
+        }
+      })
+    }
+    
+    clearExistingSession()
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');

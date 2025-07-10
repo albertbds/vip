@@ -12,7 +12,7 @@ export const supabase = supabaseUrl && supabaseAnonKey
   ? createClient(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
-        persistSession: true,
+        persistSession: false,
         detectSessionInUrl: false,
         flowType: 'pkce'
       }
@@ -39,11 +39,18 @@ async function clearInvalidSession() {
     // Limpar sessão do Supabase
     await supabase.auth.signOut()
     
-    // Limpar localStorage manualmente se necessário
+    // Limpar localStorage e sessionStorage manualmente
     const keys = Object.keys(localStorage)
     keys.forEach(key => {
-      if (key.startsWith('sb-') || key.includes('supabase')) {
+      if (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth')) {
         localStorage.removeItem(key)
+      }
+    })
+    
+    const sessionKeys = Object.keys(sessionStorage)
+    sessionKeys.forEach(key => {
+      if (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth')) {
+        sessionStorage.removeItem(key)
       }
     })
   } catch (error) {

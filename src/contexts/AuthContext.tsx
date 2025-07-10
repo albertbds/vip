@@ -20,6 +20,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Limpar sessão ao carregar a página
+  useEffect(() => {
+    const clearSessionOnLoad = async () => {
+      if (supabase) {
+        try {
+          // Fazer logout silencioso ao carregar a página
+          await supabase.auth.signOut()
+          
+          // Limpar qualquer dado persistido no localStorage
+          const keys = Object.keys(localStorage)
+          keys.forEach(key => {
+            if (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth')) {
+              localStorage.removeItem(key)
+            }
+          })
+          
+          // Limpar sessionStorage também
+          const sessionKeys = Object.keys(sessionStorage)
+          sessionKeys.forEach(key => {
+            if (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth')) {
+              sessionStorage.removeItem(key)
+            }
+          })
+        } catch (error) {
+          console.warn('Erro ao limpar sessão inicial:', error)
+        }
+      }
+    }
+    
+    clearSessionOnLoad()
+  }, [])
+
   useEffect(() => {
     let mounted = true
 
@@ -182,6 +214,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await auth.signOut()
       setUser(null)
       setProfile(null)
+      
+      // Limpar todos os dados relacionados à autenticação
+      const keys = Object.keys(localStorage)
+      keys.forEach(key => {
+        if (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth') || 
+            key.includes('notifications_') || key.includes('saleFormData') || 
+            key.includes('citySearchCounts')) {
+          localStorage.removeItem(key)
+        }
+      })
+      
+      const sessionKeys = Object.keys(sessionStorage)
+      sessionKeys.forEach(key => {
+        if (key.startsWith('sb-') || key.includes('supabase') || key.includes('auth')) {
+          sessionStorage.removeItem(key)
+        }
+      })
     } catch (error) {
       console.error('Erro ao fazer logout:', error)
     } finally {

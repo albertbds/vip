@@ -35,6 +35,43 @@ function App() {
   const { user, profile, signOut, loading } = useAuth();
   const { unreadCount } = useNotifications();
 
+  // Detectar quando a página está sendo fechada/recarregada
+  useEffect(() => {
+    const handleBeforeUnload = async (event: BeforeUnloadEvent) => {
+      // Fazer logout silencioso quando a página for fechada
+      if (user) {
+        try {
+          await signOut()
+        } catch (error) {
+          console.warn('Erro ao fazer logout no beforeunload:', error)
+        }
+      }
+    }
+
+    const handleVisibilityChange = async () => {
+      // Fazer logout quando a aba ficar oculta por muito tempo
+      if (document.hidden && user) {
+        setTimeout(async () => {
+          if (document.hidden) {
+            try {
+              await signOut()
+            } catch (error) {
+              console.warn('Erro ao fazer logout por inatividade:', error)
+            }
+          }
+        }, 30000) // 30 segundos de inatividade
+      }
+    }
+
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [user, signOut])
+
   const handleCitySelect = (city: string) => {
     incrementSearchCount(city);
     setSelectedCity(city);
