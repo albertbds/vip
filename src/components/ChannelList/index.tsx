@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 interface ChannelListProps {
   isOpen: boolean;
   onClose: () => void;
-  packageType: 'basic' | 'family' | 'cinema' | null;
+  packageType: 'essencial' | 'esportes' | 'cinema' | 'completo' | null;
 }
 
 interface ChannelCategory {
@@ -13,128 +13,75 @@ interface ChannelCategory {
   channels: string[];
 }
 
-const basicPackage: ChannelCategory[] = [
+const essencialPackage: ChannelCategory[] = [
   {
-    name: "Abertos",
-    channels: ["Globo", "SBT", "RedeTV", "Record", "Band", "Gazeta"]
-  },
-  {
-    name: "Esportes",
-    channels: ["Band Sports", "SporTV", "SporTV2", "SporTV3"]
-  },
-  {
-    name: "Notícias",
-    channels: ["Band News", "Globo News"]
-  },
-  {
-    name: "Infantis",
-    channels: ["Gloob", "Gloobinho"]
-  },
-  {
-    name: "Filmes e Séries",
-    channels: ["Universal TV", "Studio Universal", "Megapix", "USA"]
-  },
-  {
-    name: "Variedades",
-    channels: [
-      "Sabor & Arte", "Agro Plus", "C. Empreendedor", "Arte 1", "Multishow",
-      "Terra Viva", "GNT", "Canal Off", "Bis", "Modo Viagem", "Viva",
-      "Canal Brasil", "Futura", "TV Brasil", "MTV"
-    ]
-  },
-  {
-    name: "Religiosos",
-    channels: ["Canção Nova", "Rede Vida", "Aparecida"]
-  },
-  {
-    name: "Catálogo",
-    channels: ["Lionsgate", "Xpeed", "Sony Pictures", "Universal"]
-  }
-];
-
-const familyPackage: ChannelCategory[] = [
-  {
-    name: "Streaming",
-    channels: ["Paramount+"]
-  },
-  {
-    name: "Abertos",
+    name: "Canais Abertos",
     channels: ["Globo", "SBT", "RedeTV", "Record", "Band", "Gazeta", "TV Cultura"]
   },
   {
-    name: "Esportes",
-    channels: ["Band Sports", "SporTV", "SporTV2", "SporTV3"]
+    name: "Aplicativos Inclusos",
+    channels: ["Conta Outra Vez", "Skeelo", "Bebanca", "Qualifica"]
   },
   {
-    name: "Notícias",
-    channels: ["Band News", "Globo News", "Record News", "Bloomberg"]
+    name: "Adicionais",
+    channels: ["Wi-Fi 6", "100% Fibra Óptica", "Instalação Gratuita"]
+  }
+];
+
+const esportesPackage: ChannelCategory[] = [
+  {
+    name: "Canais Abertos",
+    channels: ["Globo", "SBT", "RedeTV", "Record", "Band", "Gazeta", "TV Cultura"]
   },
   {
-    name: "Infantis",
-    channels: ["Gloob", "Gloobinho", "Nickeloeon", "Nick Jr."]
+    name: "Streaming Inclusos",
+    channels: ["Paramount+", "ESPN", "Premiere"]
   },
   {
-    name: "Filmes e Séries",
-    channels: ["Universal TV", "Studio Universal", "Megapix", "USA", "Films & Arts", "Comedy Central", "Paramount"]
+    name: "Aplicativos Inclusos",
+    channels: ["Conta Outra Vez", "Skeelo", "Bebanca", "Qualifica", "Fit Anywhere"]
   },
   {
-    name: "Variedades",
-    channels: [
-      "Sabor & Arte", "Agro Plus", "C. Empreendedor", "Arte 1", "Multishow",
-      "Terra Viva", "GNT", "Canal Off", "Bis", "Modo Viagem", "Viva",
-      "Canal Brasil", "Futura", "TV Brasil", "MTV"
-    ]
-  },
-  {
-    name: "Religiosos",
-    channels: ["Canção Nova", "Rede Vida", "Aparecida"]
-  },
-  {
-    name: "Catálogo",
-    channels: ["Lionsgate", "Xpeed", "Sony Pictures", "Universal"]
+    name: "Adicionais",
+    channels: ["Wi-Fi 6", "100% Fibra Óptica", "Instalação Gratuita"]
   }
 ];
 
 const cinemaPackage: ChannelCategory[] = [
   {
-    name: "Streaming",
-    channels: ["Paramount+ e HBO Max"]
-  },
-  {
-    name: "Abertos",
+    name: "Canais Abertos",
     channels: ["Globo", "SBT", "RedeTV", "Record", "Band", "Gazeta", "TV Cultura"]
   },
   {
-    name: "Esportes",
-    channels: ["Band Sports", "SporTV", "SporTV2", "SporTV3"]
+    name: "Streaming Inclusos",
+    channels: ["Paramount+", "HBO Max", "Telecine"]
   },
   {
-    name: "Notícias",
-    channels: ["Band News", "Globo News", "Record News", "Bloomberg"]
+    name: "Aplicativos Inclusos",
+    channels: ["Conta Outra Vez", "Skeelo", "Bebanca", "Qualifica", "Fit Anywhere", "Super Comics"]
   },
   {
-    name: "Infantis",
-    channels: ["Gloob", "Gloobinho", "Nickeloeon", "Nick Jr."]
+    name: "Adicionais",
+    channels: ["Wi-Fi 6", "100% Fibra Óptica", "Instalação Gratuita"]
+  }
+];
+
+const completoPackage: ChannelCategory[] = [
+  {
+    name: "Canais Abertos",
+    channels: ["Globo", "SBT", "RedeTV", "Record", "Band", "Gazeta", "TV Cultura"]
   },
   {
-    name: "Filmes e Séries",
-    channels: ["Universal TV", "Studio Universal", "Megapix", "USA", "Films & Arts", "Comedy Central", "Paramount"]
+    name: "Streaming Inclusos",
+    channels: ["Paramount+", "HBO Max", "Telecine", "ESPN", "Premiere"]
   },
   {
-    name: "Variedades",
-    channels: [
-      "Sabor & Arte", "Agro Plus", "C. Empreendedor", "Arte 1", "Multishow",
-      "Terra Viva", "GNT", "Canal Off", "Bis", "Modo Viagem", "Viva",
-      "Canal Brasil", "Futura", "TV Brasil", "MTV"
-    ]
+    name: "Aplicativos Inclusos",
+    channels: ["Conta Outra Vez", "Skeelo", "Bebanca", "Qualifica", "Fit Anywhere", "Super Comics"]
   },
   {
-    name: "Religiosos",
-    channels: ["Canção Nova", "Rede Vida", "Aparecida"]
-  },
-  {
-    name: "Catálogo",
-    channels: ["Lionsgate", "Xpeed", "Sony Pictures", "Universal"]
+    name: "Adicionais",
+    channels: ["Wi-Fi 6", "100% Fibra Óptica", "Instalação Gratuita"]
   }
 ];
 
@@ -143,12 +90,14 @@ export function ChannelList({ isOpen, onClose, packageType }: ChannelListProps) 
 
   const getPackageChannels = () => {
     switch (packageType) {
-      case 'basic':
-        return basicPackage;
-      case 'family':
-        return familyPackage;
+      case 'essencial':
+        return essencialPackage;
+      case 'esportes':
+        return esportesPackage;
       case 'cinema':
         return cinemaPackage;
+      case 'completo':
+        return completoPackage;
       default:
         return [];
     }
@@ -156,12 +105,14 @@ export function ChannelList({ isOpen, onClose, packageType }: ChannelListProps) 
 
   const getPackageName = () => {
     switch (packageType) {
-      case 'basic':
-        return 'Pacote Básico';
-      case 'family':
-        return 'Pacote Família';
+      case 'essencial':
+        return 'Pacote Essencial';
+      case 'esportes':
+        return 'Pacote Esportes';
       case 'cinema':
         return 'Pacote Cinema';
+      case 'completo':
+        return 'Pacote Completo';
       default:
         return '';
     }
