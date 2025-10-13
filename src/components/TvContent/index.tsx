@@ -1,251 +1,90 @@
-import React, { useState } from 'react';
-import { X, Copy, Check } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState } from 'react';
+import { Tv } from 'lucide-react';
+import { ChannelList } from './ChannelList';
 
-interface ChannelListProps {
-  isOpen: boolean;
-  onClose: () => void;
-  packageType: 'essencial' | 'esportes' | 'cinema' | 'completo' | null;
-}
+type PackageType = 'basic' | 'family' | 'cinema' | null;
 
-interface ChannelCategory {
-  name: string;
-  channels: string[];
-}
+export function TvContent() {
+  const [showChannels, setShowChannels] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<PackageType>(null);
 
-const basicPackage: ChannelCategory[] = [
-  {
-    name: "Abertos",
-    channels: ["Globo", "SBT", "RedeTV", "Record", "Band", "Gazeta"]
-  },
-  {
-    name: "Esportes",
-    channels: ["Band Sports", "SporTV", "SporTV2", "SporTV3"]
-  },
-  {
-    name: "Notícias",
-    channels: ["Band News", "Globo News"]
-  },
-  {
-    name: "Infantis",
-    channels: ["Gloob", "Gloobinho"]
-  },
-  {
-    name: "Filmes e Séries",
-    channels: ["Universal TV", "Studio Universal", "Megapix", "USA"]
-  },
-  {
-    name: "Variedades",
-    channels: [
-      "Sabor & Arte", "Agro Plus", "C. Empreendedor", "Arte 1", "Multishow",
-      "Terra Viva", "GNT", "Canal Off", "Bis", "Modo Viagem", "Viva",
-      "Canal Brasil", "Futura", "TV Brasil", "MTV"
-    ]
-  },
-  {
-    name: "Religiosos",
-    channels: ["Canção Nova", "Rede Vida", "Aparecida"]
-  },
-  {
-    name: "Catálogo",
-    channels: ["Lionsgate", "Xpeed", "Sony Pictures", "Universal"]
-  }
-];
-
-const familyPackage: ChannelCategory[] = [
-  {
-    name: "Streaming",
-    channels: ["Paramount+"]
-  },
-  {
-    name: "Abertos",
-    channels: ["Globo", "SBT", "RedeTV", "Record", "Band", "Gazeta", "TV Cultura"]
-  },
-  {
-    name: "Esportes",
-    channels: ["Band Sports", "SporTV", "SporTV2", "SporTV3"]
-  },
-  {
-    name: "Notícias",
-    channels: ["Band News", "Globo News", "Record News", "Bloomberg"]
-  },
-  {
-    name: "Infantis",
-    channels: ["Gloob", "Gloobinho", "Nickeloeon", "Nick Jr."]
-  },
-  {
-    name: "Filmes e Séries",
-    channels: ["Universal TV", "Studio Universal", "Megapix", "USA", "Films & Arts", "Comedy Central", "Paramount"]
-  },
-  {
-    name: "Variedades",
-    channels: [
-      "Sabor & Arte", "Agro Plus", "C. Empreendedor", "Arte 1", "Multishow",
-      "Terra Viva", "GNT", "Canal Off", "Bis", "Modo Viagem", "Viva",
-      "Canal Brasil", "Futura", "TV Brasil", "MTV"
-    ]
-  },
-  {
-    name: "Religiosos",
-    channels: ["Canção Nova", "Rede Vida", "Aparecida"]
-  },
-  {
-    name: "Catálogo",
-    channels: ["Lionsgate", "Xpeed", "Sony Pictures", "Universal"]
-  }
-];
-
-const cinemaPackage: ChannelCategory[] = [
-  {
-    name: "Streaming",
-    channels: ["Paramount+ e HBO Max"]
-  },
-  {
-    name: "Abertos",
-    channels: ["Globo", "SBT", "RedeTV", "Record", "Band", "Gazeta", "TV Cultura"]
-  },
-  {
-    name: "Esportes",
-    channels: ["Band Sports", "SporTV", "SporTV2", "SporTV3"]
-  },
-  {
-    name: "Notícias",
-    channels: ["Band News", "Globo News", "Record News", "Bloomberg"]
-  },
-  {
-    name: "Infantis",
-    channels: ["Gloob", "Gloobinho", "Nickeloeon", "Nick Jr."]
-  },
-  {
-    name: "Filmes e Séries",
-    channels: ["Universal TV", "Studio Universal", "Megapix", "USA", "Films & Arts", "Comedy Central", "Paramount"]
-  },
-  {
-    name: "Variedades",
-    channels: [
-      "Sabor & Arte", "Agro Plus", "C. Empreendedor", "Arte 1", "Multishow",
-      "Terra Viva", "GNT", "Canal Off", "Bis", "Modo Viagem", "Viva",
-      "Canal Brasil", "Futura", "TV Brasil", "MTV"
-    ]
-  },
-  {
-    name: "Religiosos",
-    channels: ["Canção Nova", "Rede Vida", "Aparecida"]
-  },
-  {
-    name: "Catálogo",
-    channels: ["Lionsgate", "Xpeed", "Sony Pictures", "Universal"]
-  }
-];
-
-export function ChannelList({ isOpen, onClose, packageType }: ChannelListProps) {
-  const [copied, setCopied] = useState(false);
-
-  const getPackageChannels = () => {
-    switch (packageType) {
-      case 'essencial':
-        return basicPackage;
-      case 'esportes':
-        return familyPackage;
-      case 'cinema':
-        return cinemaPackage;
-      default:
-        return [];
+  const packages = [
+    {
+      id: 'basic' as const,
+      name: 'Pacote Básico',
+      price: 'R$ 49,90',
+      description: 'Canais essenciais para toda a família',
+      features: ['Canais abertos', 'Esportes básicos', 'Notícias', 'Infantis']
+    },
+    {
+      id: 'family' as const,
+      name: 'Pacote Família',
+      price: 'R$ 79,90',
+      description: 'Mais opções de entretenimento',
+      features: ['Paramount+', 'Mais canais infantis', 'Filmes e séries', 'Variedades']
+    },
+    {
+      id: 'cinema' as const,
+      name: 'Pacote Cinema',
+      price: 'R$ 99,90',
+      description: 'O melhor do entretenimento',
+      features: ['HBO Max + Paramount+', 'Canais premium', 'Cinema em casa', 'Todos os esportes']
     }
-  };
+  ];
 
-  const getPackageName = () => {
-    switch (packageType) {
-      case 'essencial':
-        return 'Pacote Essencial';
-      case 'esportes':
-        return 'Pacote Esportes';
-      case 'cinema':
-        return 'Pacote Cinema';
-      default:
-        return '';
-    }
+  const handleViewChannels = (packageId: PackageType) => {
+    setSelectedPackage(packageId);
+    setShowChannels(true);
   };
-
-  const handleCopy = async () => {
-    const channels = getPackageChannels();
-    const text = channels.map(category => 
-      `${category.name}\n${category.channels.join('\n')}\n`
-    ).join('\n');
-    
-    await navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  if (!isOpen) return null;
 
   return (
-    <AnimatePresence>
-      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-[#1D1E2C] rounded-lg w-full max-w-4xl overflow-hidden"
-        >
-          <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <h2 className="text-xl font-medium">
-              Lista de Canais - {getPackageName()}
-            </h2>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleCopy}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all ${
-                  copied
-                    ? 'bg-green-500 text-white'
-                    : 'bg-blue-600 hover:bg-blue-700 text-white'
-                }`}
-              >
-                {copied ? (
-                  <>
-                    <Check size={18} />
-                    <span>Copiado!</span>
-                  </>
-                ) : (
-                  <>
-                    <Copy size={18} />
-                    <span>Copiar Lista</span>
-                  </>
-                )}
-              </button>
-              <button 
-                onClick={onClose}
-                className="text-gray-400 hover:text-white p-2 hover:bg-white/5 rounded-lg"
-              >
-                <X size={20} />
-              </button>
-            </div>
+    <div className="w-full">
+      <div className="bg-gradient-to-r from-pink-600/20 to-rose-600/20 rounded-2xl p-8 border border-white/10 mb-6">
+        <div className="flex items-center gap-4 mb-6">
+          <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center">
+            <Tv size={32} className="text-white" />
           </div>
-
-          <div className="p-6 max-h-[calc(90vh-100px)] overflow-y-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {getPackageChannels().map((category, index) => (
-                <div key={index} className="space-y-2">
-                  <h3 className="text-lg font-medium text-blue-400 mb-3">
-                    {category.name}
-                  </h3>
-                  <div className="space-y-1">
-                    {category.channels.map((channel, channelIndex) => (
-                      <div
-                        key={channelIndex}
-                        className="px-3 py-2 bg-white/5 rounded-lg"
-                      >
-                        {channel}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div>
+            <h2 className="text-3xl font-bold text-white">Giga+ TV</h2>
+            <p className="text-gray-400">Conheça nossos pacotes de canais</p>
           </div>
-        </motion.div>
+        </div>
       </div>
-    </AnimatePresence>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {packages.map((pkg) => (
+          <div
+            key={pkg.id}
+            className="bg-white/5 rounded-xl p-6 border border-white/10 hover:border-pink-500/50 transition-all"
+          >
+            <h3 className="text-2xl font-bold text-white mb-2">{pkg.name}</h3>
+            <p className="text-3xl font-bold text-pink-400 mb-4">{pkg.price}</p>
+            <p className="text-gray-400 mb-6">{pkg.description}</p>
+
+            <ul className="space-y-2 mb-6">
+              {pkg.features.map((feature, index) => (
+                <li key={index} className="flex items-start gap-2 text-gray-300">
+                  <span className="text-pink-400 mt-1">✓</span>
+                  <span>{feature}</span>
+                </li>
+              ))}
+            </ul>
+
+            <button
+              onClick={() => handleViewChannels(pkg.id)}
+              className="w-full px-4 py-3 bg-gradient-to-r from-pink-600 to-rose-600 text-white rounded-lg hover:from-pink-700 hover:to-rose-700 transition-all"
+            >
+              Ver Lista Completa
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <ChannelList
+        isOpen={showChannels}
+        onClose={() => setShowChannels(false)}
+        packageType={selectedPackage}
+      />
+    </div>
   );
 }
