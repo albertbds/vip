@@ -173,7 +173,7 @@ function App() {
       {/* System Shutdown Message */}
       <div className="bg-amber-950/50 border-b border-amber-700/50 px-4 sm:px-6 py-3 text-center">
         <p className="text-amber-200 text-sm sm:text-base font-medium">
-          Aviso: Sistema será encerrado em breve. Salve suas informações.
+          Aviso: Sistema será encerrado em breve.
         </p>
       </div>
 
