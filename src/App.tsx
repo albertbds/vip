@@ -10,8 +10,8 @@ import { PlansDetailModal } from './components/PlansDetailModal';
 import { FAQ } from './components/FAQ';
 import { TvContent } from './components/TvContent';
 import { CepGeral } from './components/CepGeral';
-import { 
-  Home, Building2, Search, Smartphone, HelpCircle, Tv, MapPin
+import {
+  Home, Building2, Search, Smartphone, HelpCircle, MapPin
 } from 'lucide-react';
 import { useSearch } from './contexts/SearchContext';
 
@@ -38,7 +38,6 @@ function App() {
     { id: 'home', label: 'Início', icon: Home, color: 'from-green-500 to-emerald-500' },
     { id: 'plans', label: 'Planos', icon: Search, color: 'from-purple-500 to-pink-500' },
     { id: 'streaming', label: 'Apps', icon: Smartphone, color: 'from-indigo-500 to-blue-500' },
-    { id: 'channels', label: 'Canais', icon: Tv, color: 'from-pink-500 to-rose-500' },
     { id: 'condominiums', label: 'Condomínios', icon: Building2, color: 'from-teal-500 to-green-500' },
     { id: 'cep-geral', label: 'CEP Geral', icon: MapPin, color: 'from-yellow-500 to-orange-500' },
     { id: 'faq', label: 'Dúvidas', icon: HelpCircle, color: 'from-gray-500 to-slate-500' }
@@ -84,8 +83,6 @@ function App() {
         return <StreamingContent />;
       case 'condominiums':
         return <Condominiums />;
-      case 'channels':
-        return <TvContent />;
       case 'cep-geral':
         return <CepGeral />;
       case 'faq':
