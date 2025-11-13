@@ -5,7 +5,7 @@ export function SplineSceneBasic() {
         <div className="text-6xl">🌐</div>
         <h2 className="text-2xl font-bold text-white">Bem-vindo ao Giga+ Fibra</h2>
         <p className="text-gray-400 max-w-md">
-          Use o menu acima para explorar nossos planos, canais, aplicativos e muito mais.
+          Sistema será encerrado em breve
         </p>
       </div>
     </div>
