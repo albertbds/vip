@@ -33,7 +33,7 @@ function App() {
             <div className="text-5xl">⚠</div>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl font-bold text-white">Sistema Desativado</h1>
+          <h1 className="text-4xl sm:text-5xl font-bold text-white">Sistema offline</h1>
 
           <p className="text-xl text-gray-300 max-w-md mx-auto">
             O sistema não está mais disponível no momento.
