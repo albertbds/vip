@@ -36,7 +36,7 @@ function App() {
           <h1 className="text-4xl sm:text-5xl font-bold text-white">Sistema Desativado</h1>
 
           <p className="text-xl text-gray-300 max-w-md mx-auto">
-            O sistema Giga+ Fibra foi desativado e não está mais disponível no momento.
+            O sistema não está mais disponível no momento.
           </p>
         </div>
 
